@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2021 ForgeFlow S.L. (https://www.forgeflow.com)
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
+ -->
+<odoo>
+    <record id="view_partner_form" model="ir.ui.view">
+        <field name="name">res.partner.form - kyc</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form" />
+        <field name="arch" type="xml">
+            <sheet position="before">
+                <header>
+                    <button
+                        name="action_kyc_scan"
+                        class="btn btn-primary"
+                        string="KYC Scan"
+                        type="object"
+                    />
+                    <button
+                        name="action_override_kyc_status"
+                        string="KYC Checked"
+                        class="btn btn-success"
+                        type="object"
+                        attrs="{'invisible': [('kyc_status', '!=', 'ok')]}"
+                    />
+                    <button
+                        name="action_override_kyc_status"
+                        string="KYC Checked"
+                        class="btn btn-danger"
+                        type="object"
+                        attrs="{'invisible': [('kyc_status', '!=', 'sanction')]}"
+                    />
+                </header>
+            </sheet>
+            <notebook position="inside">
+                <page name="kyc" string="KYC Compliance">
+                    <group>
+                        <field name="kyc_status" />
+                        <field name="ultimate_beneficial_owner" />
+                        <field name="birthdate_date" />
+                    </group>
+                </page>
+            </notebook>
+        </field>
+    </record>
+</odoo>
