@@ -10,7 +10,15 @@
     "license": "AGPL-3",
     "development_status": "Alpha",
     "category": "KYC",
-    "depends": ["webservice"],
-    "data": ["views/res_partner_view.xml"],
+    "depends": ["webservice", "base_setup"],
+    "data": [
+        "security/ir.model.access.csv",
+        "security/kyc_security.xml",
+        "data/cron.xml",
+        "wizard/kyc_file_upload_view.xml",
+        "views/res_partner_view.xml",
+        "views/res_config_settings_views.xml",
+        "wizard/kyc_partner_scan_view.xml",
+    ],
     "installable": True,
 }

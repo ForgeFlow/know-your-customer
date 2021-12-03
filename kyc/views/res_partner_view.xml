@@ -21,6 +21,7 @@
                         string="KYC Checked"
                         class="btn btn-success"
                         type="object"
+                        groups="kyc.group_override_kyc_status"
                         attrs="{'invisible': [('kyc_status', '!=', 'ok')]}"
                     />
                     <button
@@ -28,6 +29,7 @@
                         string="KYC Checked"
                         class="btn btn-danger"
                         type="object"
+                        groups="kyc.group_override_kyc_status"
                         attrs="{'invisible': [('kyc_status', '!=', 'sanction')]}"
                     />
                 </header>
@@ -35,12 +37,69 @@
             <notebook position="inside">
                 <page name="kyc" string="KYC Compliance">
                     <group>
-                        <field name="kyc_status" />
-                        <field name="ultimate_beneficial_owner" />
-                        <field name="birthdate_date" />
+                        <group>
+                            <field name="kyc_status" />
+                            <field
+                                name="ultimate_beneficial_owner"
+                                attrs="{'invisible':[('is_company','=',False)]}"
+                            />
+                            <field
+                                name="birthdate_date"
+                                attrs="{'invisible':[('is_company','=',True)]}"
+                            />
+                            <field
+                                name="nationality"
+                                attrs="{'invisible':[('is_company','=',True)]}"
+                            />
+                            <field
+                                name="kyc_last_scan"
+                                readonly="1"
+                                string="Last scan on"
+                            />
+                        </group>
+                        <group>
+                            <div>
+                                <span class="oe_inline">
+                                    <button
+                                        name="%(kyc_file_upload_action)d"
+                                        type="action"
+                                        context="{'default_partner_id':active_id}"
+                                        string="Upload Document"
+                                        class="btn btn-link mb-2 fa fa-upload"
+                                        title="Upload Document"
+                                    />
+                                </span>
+                                <field
+                                    name="attachment_ids"
+                                    mode="tree"
+                                    readonly="1"
+                                    nolabel="1"
+                                >
+                                    <tree>
+                                        <field name="name" />
+                                        <button
+                                            name="download_file"
+                                            type="object"
+                                            class="btn fa fa-download"
+                                            title="Download Document"
+                                        />
+                                    </tree>
+                                </field>
+                            </div>
+                        </group>
                     </group>
                 </page>
             </notebook>
+            <header position="after">
+                <h3
+                    class="alert alert-warning"
+                    role="alert"
+                    attrs="{'invisible':[('kyc_status','!=','pending')]}"
+                >KYC
+                    Scan is
+                    pending.
+                </h3>
+            </header>
         </field>
     </record>
 </odoo>
