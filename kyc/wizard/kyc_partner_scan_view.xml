@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+
+    <record id="kyc_partner_scan_form" model="ir.ui.view">
+        <field name="name">kyc.partner.scan.form</field>
+        <field name="model">kyc.partner.scan</field>
+        <field name="arch" type="xml">
+            <form string="KYC Scan">
+                <field name="partner_id" invisible="1" />
+                <group invisible="not context.get('scan_kyc_status')">
+                    <field
+                        name="ultimate_beneficial_owner"
+                        invisible="not context.get('required_company_fields')"
+                        required="context.get('required_company_fields')"
+                    />
+                    <field
+                        name="birthdate_date"
+                        invisible="not context.get('required_individual_fields')"
+                        required="context.get('required_individual_fields')"
+                    />
+                    <field
+                        name="nationality"
+                        invisible="not context.get('required_individual_fields')"
+                        required="context.get('required_individual_fields')"
+                    />
+                </group>
+                <group invisible="not context.get('override_status')">
+                    <field
+                        name="kyc_status"
+                        required="context.get('override_status')"
+                    />
+                    <field
+                        name="status_override_reason"
+                        required="context.get('override_status')"
+                    />
+                </group>
+                <footer>
+                    <button
+                        name="scan"
+                        type="object"
+                        string="Scan"
+                        class="btn-primary"
+                        invisible="not context.get('scan_kyc_status')"
+                    />
+                    <button
+                        name="override_kyc_status"
+                        type="object"
+                        string="Override Status"
+                        class="btn-primary"
+                        invisible="not context.get('override_status')"
+                    />
+                    <button special="cancel" string="Cancel" class="oe_link" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="kyc_partner_scan_action" model="ir.actions.act_window">
+        <field name="name">KYC Scan</field>
+        <field name="res_model">kyc.partner.scan</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+
+</odoo>
