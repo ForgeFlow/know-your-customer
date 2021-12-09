@@ -48,6 +48,14 @@ class SanctionScannerApi(Component):
         res = conn.getresponse()
         data = res.read()
         response = json.loads(data.decode("utf-8"))
+        self.env["kyc.process.log"].sudo().create(
+            {
+                "req_data": payload,
+                "res_data": response,
+                "author_id": self.env.user.id,
+                "partner_id": partner.id,
+            }
+        )
         match_status = response.get("Result", {}).get("MatchStatusId", 0)
         # 0:Unknown
         # 1:No Match
