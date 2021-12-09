@@ -11,7 +11,7 @@ class KYCPartnerScan(models.TransientModel):
     partner_id = fields.Many2one("res.partner", "Partner")
     ultimate_beneficial_owner = fields.Char()
     birthdate_date = fields.Date(string="Date of Birth")
-    nationality = fields.Char()
+    nationality_id = fields.Many2one("res.country", "Nationality")
     kyc_status = fields.Selection(
         selection=[
             ("pending", "To Scan"),
@@ -38,5 +38,18 @@ class KYCPartnerScan(models.TransientModel):
                     self.status_override_reason,
                 )
             )
+        )
+        self.env["kyc.status.override.log"].sudo().create(
+            {
+                "old_status": dict(self._fields["kyc_status"].selection).get(
+                    self.partner_id.kyc_status
+                ),
+                "new_status": dict(self._fields["kyc_status"].selection).get(
+                    self.kyc_status
+                ),
+                "override_reason": self.status_override_reason,
+                "author_id": self.env.user.id,
+                "partner_id": self.partner_id.id,
+            }
         )
         self.partner_id.write({"kyc_status": self.kyc_status})

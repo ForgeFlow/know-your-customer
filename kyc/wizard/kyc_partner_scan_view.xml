@@ -20,7 +20,7 @@
                         required="context.get('required_individual_fields')"
                     />
                     <field
-                        name="nationality"
+                        name="nationality_id"
                         invisible="not context.get('required_individual_fields')"
                         required="context.get('required_individual_fields')"
                     />
