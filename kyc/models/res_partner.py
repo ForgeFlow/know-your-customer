@@ -1,7 +1,7 @@
 # Copyright 2021 ForgeFlow S.L. (https://www.forgeflow.com)
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
@@ -10,9 +10,50 @@ from odoo.exceptions import UserError
 class Partner(models.Model):
     _inherit = "res.partner"
 
+    def name_get(self):
+        res = []
+        for partner in self:
+            if partner.is_about_expire:
+                res.append(
+                    (
+                        partner.id,
+                        "%s %s" % (partner.name, (" (Contact about to expire)")),
+                    )
+                )
+            else:
+                res.append((partner.id, partner.name))
+        return res
+
+    def _compute_is_about_expire(self):
+        for rec in self:
+            if rec.kyc_status and rec.kyc_last_scan:
+                delta = datetime.today() - rec.kyc_last_scan
+                if delta.days >= 335 and delta.days <= 365:
+                    rec.is_about_expire = True
+                else:
+                    rec.is_about_expire = False
+            else:
+                rec.is_about_expire = False
+
+    def _search_is_about_expire(self, operator, value):
+        from_date = datetime.now() - timedelta(days=365)
+        to_date = datetime.now() - timedelta(days=335)
+        return [("kyc_last_scan", ">=", from_date), ("kyc_last_scan", "<=", to_date)]
+
+    def _compute_is_expire(self):
+        for rec in self:
+            if rec.kyc_status and rec.kyc_last_scan:
+                delta = datetime.today() - rec.kyc_last_scan
+                if delta.days > 365:
+                    rec.is_expire = True
+                else:
+                    rec.is_expire = False
+            else:
+                rec.is_expire = False
+
     ultimate_beneficial_owner = fields.Char()
     birthdate_date = fields.Date(string="Date of Birth")
-    nationality = fields.Char()
+    nationality_id = fields.Many2one("res.country", "Nationality")
     kyc_status = fields.Selection(
         selection=[
             ("pending", "To Scan"),
@@ -30,6 +71,10 @@ class Partner(models.Model):
         "attachment_id",
         "Compliance documents",
     )
+    is_about_expire = fields.Boolean(
+        compute=_compute_is_about_expire, search=_search_is_about_expire
+    )
+    is_expire = fields.Boolean(compute=_compute_is_expire)
 
     # TODO: whitelist
 
@@ -46,7 +91,9 @@ class Partner(models.Model):
             "default_partner_id": self.id,
             "default_ultimate_beneficial_owner": self.ultimate_beneficial_owner,
             "default_birthdate_date": self.birthdate_date,
-            "default_nationality": self.nationality,
+            "default_nationality_id": self.nationality_id
+            and self.nationality_id.id
+            or False,
             "scan_kyc_status": True,
             "required_company_fields": True if self.is_company else False,
             "required_individual_fields": False if self.is_company else True,
@@ -74,7 +121,9 @@ class Partner(models.Model):
         action["name"] = "Override KYC Status"
         action["context"] = {
             "default_partner_id": self.id,
-            "default_nationality": self.nationality,
+            "default_nationality": self.nationality_id
+            and self.nationality_id.id
+            or False,
             "override_status": True,
         }
         return action

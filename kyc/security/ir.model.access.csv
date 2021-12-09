@@ -1,3 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_kyc_partner_scan,kyc.partner.scan,model_kyc_partner_scan,,1,1,1,1
 access_kyc_file_upload,kyc.file.upload,model_kyc_file_upload,,1,1,1,1
+access_kyc_process_log,kyc.process.log,model_kyc_process_log,,1,0,0,0
+access_kyc_status_override_log,kyc.status.override.log,model_kyc_status_override_log,,1,0,0,0
