@@ -3,7 +3,7 @@
 
 {
     "name": "Know Your Customer",
-    "version": "14.0.1.0.0",
+    "version": "14.0.1.1.0",
     "summary": "Know Your Customer (KYC).",
     "author": "ForgeFlow",
     "website": "https://github.com/OCA/https://github.com/ForgeFlow/know-your-customer",
