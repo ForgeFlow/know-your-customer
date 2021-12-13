@@ -24,6 +24,17 @@ class KYCPartnerScan(models.TransientModel):
     status_override_reason = fields.Char()
 
     def scan(self):
+        fields_to_update = [
+            "ultimate_beneficial_owner",
+            "birthdate_date",
+            "nationality_id",
+        ]
+        vals = {}
+        for f in fields_to_update:
+            if self.__getattribute__(f) != self.partner_id.__getattribute__(f):
+                vals[f] = self.__getattribute__(f)
+        if vals:
+            self.partner_id.write(vals)
         self.partner_id._action_kyc_scan()
 
     def override_kyc_status(self):
