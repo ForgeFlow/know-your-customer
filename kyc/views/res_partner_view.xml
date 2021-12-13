@@ -21,6 +21,7 @@
                         string="KYC Checked"
                         class="btn btn-success"
                         type="object"
+                        groups="kyc.group_override_kyc_status"
                         attrs="{'invisible': [('kyc_status', '!=', 'ok')]}"
                     />
                     <button
@@ -28,6 +29,7 @@
                         string="KYC Checked"
                         class="btn btn-danger"
                         type="object"
+                        groups="kyc.group_override_kyc_status"
                         attrs="{'invisible': [('kyc_status', '!=', 'sanction')]}"
                     />
                 </header>
@@ -35,12 +37,125 @@
             <notebook position="inside">
                 <page name="kyc" string="KYC Compliance">
                     <group>
-                        <field name="kyc_status" />
-                        <field name="ultimate_beneficial_owner" />
-                        <field name="birthdate_date" />
+                        <group>
+                            <field name="kyc_status" />
+                            <field
+                                name="ultimate_beneficial_owner"
+                                attrs="{'invisible':[('is_company','=',False)]}"
+                            />
+                            <field
+                                name="birthdate_date"
+                                attrs="{'invisible':[('is_company','=',True)]}"
+                            />
+                            <field
+                                name="nationality_id"
+                                attrs="{'invisible':[('is_company','=',True)]}"
+                            />
+                            <field
+                                name="kyc_last_scan"
+                                readonly="1"
+                                string="Last Scan on"
+                            />
+                            <field
+                                name="kyc_last_auto_scan"
+                                readonly="1"
+                                string="Last Auto Scan on"
+                            />
+                        </group>
+                        <group>
+                            <div>
+                                <span class="oe_inline">
+                                    <button
+                                        name="%(kyc_file_upload_action)d"
+                                        type="action"
+                                        context="{'default_partner_id':active_id}"
+                                        string="Upload Document"
+                                        class="btn btn-link mb-2 fa fa-upload"
+                                        title="Upload Document"
+                                    />
+                                </span>
+                                <field
+                                    name="attachment_ids"
+                                    mode="tree"
+                                    readonly="1"
+                                    nolabel="1"
+                                >
+                                    <tree>
+                                        <field name="name" />
+                                        <button
+                                            name="download_file"
+                                            type="object"
+                                            class="btn fa fa-download"
+                                            title="Download Document"
+                                        />
+                                    </tree>
+                                </field>
+                            </div>
+                        </group>
                     </group>
                 </page>
             </notebook>
+            <header position="after">
+                <h3
+                    class="alert alert-warning"
+                    role="alert"
+                    attrs="{'invisible':[('kyc_status','!=','pending')]}"
+                >KYC
+                    Scan is
+                    pending.
+                </h3>
+            </header>
+        </field>
+    </record>
+
+    <record id="res_partner_kanban_view" model="ir.ui.view">
+        <field name="name">res.partner.kanban.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.res_partner_kanban_view" />
+        <field name="arch" type="xml">
+            <field name="mobile" position="after">
+                <field name="kyc_is_about_expire" />
+            </field>
+            <xpath expr="//span[hasclass('oe_kanban_partner_links')]" position="after">
+                <span t-if="record.kyc_is_about_expire.raw_value">
+                    <i
+                        class="fa fa-exclamation-triangle text-warning"
+                        role="img"
+                        aria-label="Contact about to expire"
+                        title="Contact about to expire"
+                    />
+                </span>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_tree" model="ir.ui.view">
+        <field name="name">res.partner.tree.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree" />
+        <field name="arch" type="xml">
+            <field name="display_name" position="after">
+                <field name="kyc_is_about_expire" invisible="1" />
+            </field>
+            <xpath expr="//tree" position="attributes">
+                <attribute name="decoration-warning">kyc_is_about_expire</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_res_partner_filter" model="ir.ui.view">
+        <field name="name">res.partner.view.search.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter" />
+        <field name="arch" type="xml">
+            <filter name="inactive" position="after">
+                <separator />
+                <filter
+                    string="KYC Scan about to expire"
+                    name="contact_about_expire"
+                    domain="[('kyc_is_about_expire', '=', True)]"
+                />
+            </filter>
         </field>
     </record>
 </odoo>

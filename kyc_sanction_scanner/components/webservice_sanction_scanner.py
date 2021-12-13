@@ -32,16 +32,22 @@ class SanctionScannerApi(Component):
         }
         return conn, headers
 
-    def scan(self, partner):
+    def _scan(self, partner):
         # ref: http://developer.sanctionscanner.com/en/search-methods
         conn, headers = self._get_connection_and_header()
         payload = ""
         search_type = 2 if partner.is_company else 1
-        # TODO: country code? birth date? ultimate beneficial owner?
+        request_params_str = "/api/Search/SearchByName?name=%s&searchType=%s" % (
+            quote(partner.name),
+            search_type,
+        )
+        if not partner.is_company:
+            request_params_str += "&birthYear=%s" % partner.birthdate_date.year
+            # "countryCodes" not used for now because it limits the results, more
+            # chances to get a false negative.
         conn.request(
             "GET",
-            "/api/Search/SearchByName?name=%s&searchType=%s"
-            % (quote(partner.name), search_type),
+            request_params_str,
             payload,
             headers,
         )
@@ -62,3 +68,45 @@ class SanctionScannerApi(Component):
             return "ok", response
         # TODO: more cases.
         return "sanction", response
+
+    def _scan_by_name(self, name):
+        # ref: http://developer.sanctionscanner.com/en/search-methods
+        conn, headers = self._get_connection_and_header()
+        payload = ""
+        search_type = 1
+        conn.request(
+            "GET",
+            "/api/Search/SearchByName?name=%s&searchType=%s"
+            % (quote(name), search_type),
+            payload,
+            headers,
+        )
+        res = conn.getresponse()
+        data = res.read()
+        response = json.loads(data.decode("utf-8"))
+        match_status = response.get("Result", {}).get("MatchStatusId", 0)
+        if response.get("HttpStatusCode") != 200 or match_status == 0:
+            return "error", response
+        if match_status == 1:
+            return "ok", response
+        # TODO: more cases.
+        return "sanction", response
+
+    def scan(self, partner):
+        kyc_status, response = self._scan(partner)
+        if partner.is_company:
+            statuses = [kyc_status]
+            responses = [response]
+            for name in partner.ultimate_beneficial_owner.split(","):
+                name = name.strip()
+                sub_status, sub_response = self._scan_by_name(name)
+                statuses.append(sub_status)
+                responses.append(sub_response)
+            if any(s == "error" for s in statuses):
+                kyc_status = "error"
+            elif any(s == "sanction" for s in statuses):
+                kyc_status = "sanction"
+            elif any(s == "ok" for s in statuses):
+                kyc_status = "ok"
+            response = responses
+        return kyc_status, response

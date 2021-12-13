@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+
+    <record id="module_category_kyc" model="ir.module.category">
+        <field name="name">KYC</field>
+        <field name="sequence">110</field>
+    </record>
+
+    <record id="group_override_kyc_status" model="res.groups">
+        <field name="name">Override KYC Status</field>
+        <field name="category_id" ref="module_category_kyc" />
+        <field name="comment">Override KYC Status</field>
+        <field
+            name="users"
+            eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"
+        />
+    </record>
+
+    <record id="group_read_kyc_logs" model="res.groups">
+        <field name="name">Read KYC Logs</field>
+        <field name="category_id" ref="module_category_kyc" />
+        <field
+            name="users"
+            eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"
+        />
+    </record>
+
+</odoo>
