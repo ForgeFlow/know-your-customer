@@ -1,8 +1,7 @@
 # Copyright 2021 ForgeFlow S.L. (https://www.forgeflow.com)
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
-from odoo import _, api, models
-from odoo.exceptions import UserError
+from odoo import api, models
 
 
 class AccountMove(models.Model):
@@ -10,9 +9,14 @@ class AccountMove(models.Model):
 
     @api.onchange("partner_id")
     def _onchange_partner_id(self):
-        if self.partner_id and self.partner_id.is_expire:
-            raise UserError(_("%s's KYC status is expired." % (self.partner_id.name)))
-        return super(AccountMove, self)._onchange_partner_id()
+        if self.partner_id:
+            self.partner_id._kyc_accept_transaction()
+        return super()._onchange_partner_id()
+
+    def _post(self, soft=True):
+        if self.partner_id:
+            self.partner_id._kyc_accept_transaction()
+        return super()._post(soft=soft)
 
 
 class AccountPayment(models.Model):
@@ -20,5 +24,5 @@ class AccountPayment(models.Model):
 
     @api.onchange("partner_id")
     def _onchange_partner_id(self):
-        if self.partner_id and self.partner_id.is_expire:
-            raise UserError(_("%s's KYC status is expired." % (self.partner_id.name)))
+        if self.partner_id:
+            self.partner_id._kyc_accept_transaction()
