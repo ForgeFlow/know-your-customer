@@ -3,6 +3,8 @@
 
 from odoo import fields, models
 
+from .res_partner import KYC_STATUSES
+
 
 class KYCProcessLog(models.Model):
     _name = "kyc.process.log"
@@ -13,7 +15,7 @@ class KYCProcessLog(models.Model):
     )
     req_data = fields.Text("Request")
     res_data = fields.Text("Response")
-    message = fields.Char()
+    kyc_result = fields.Selection(selection=KYC_STATUSES)
     author_id = fields.Many2one("res.users")
     partner_id = fields.Many2one("res.partner", "Contact")
 

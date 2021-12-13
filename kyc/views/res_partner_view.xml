@@ -54,7 +54,12 @@
                             <field
                                 name="kyc_last_scan"
                                 readonly="1"
-                                string="Last scan on"
+                                string="Last Scan on"
+                            />
+                            <field
+                                name="kyc_last_auto_scan"
+                                readonly="1"
+                                string="Last Auto Scan on"
                             />
                         </group>
                         <group>
@@ -109,10 +114,10 @@
         <field name="inherit_id" ref="base.res_partner_kanban_view" />
         <field name="arch" type="xml">
             <field name="mobile" position="after">
-                <field name="is_about_expire" />
+                <field name="kyc_is_about_expire" />
             </field>
             <xpath expr="//span[hasclass('oe_kanban_partner_links')]" position="after">
-                <span t-if="record.is_about_expire.raw_value">
+                <span t-if="record.kyc_is_about_expire.raw_value">
                     <i
                         class="fa fa-exclamation-triangle text-warning"
                         role="img"
@@ -130,10 +135,10 @@
         <field name="inherit_id" ref="base.view_partner_tree" />
         <field name="arch" type="xml">
             <field name="display_name" position="after">
-                <field name="is_about_expire" invisible="1" />
+                <field name="kyc_is_about_expire" invisible="1" />
             </field>
             <xpath expr="//tree" position="attributes">
-                <attribute name="decoration-warning">is_about_expire</attribute>
+                <attribute name="decoration-warning">kyc_is_about_expire</attribute>
             </xpath>
         </field>
     </record>
@@ -146,9 +151,9 @@
             <filter name="inactive" position="after">
                 <separator />
                 <filter
-                    string="Contact about expire"
+                    string="KYC Scan about to expire"
                     name="contact_about_expire"
-                    domain="[('is_about_expire', '=', True)]"
+                    domain="[('kyc_is_about_expire', '=', True)]"
                 />
             </filter>
         </field>
