@@ -43,8 +43,7 @@ class SanctionScannerApi(Component):
         )
         if not partner.is_company:
             request_params_str += "&birthYear=%s" % partner.birthdate_date.year
-            # "countryCodes" not used for now because it limits the results, more
-            # chances to get a false negative.
+            request_params_str += "&countryCodes=%s" % partner.nationality_id.code
         conn.request(
             "GET",
             request_params_str,
