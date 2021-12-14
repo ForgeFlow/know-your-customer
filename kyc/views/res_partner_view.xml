@@ -75,7 +75,7 @@
                                     />
                                 </span>
                                 <field
-                                    name="attachment_ids"
+                                    name="kyc_attachment_ids"
                                     mode="tree"
                                     readonly="1"
                                     nolabel="1"

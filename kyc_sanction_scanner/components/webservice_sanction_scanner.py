@@ -43,8 +43,7 @@ class SanctionScannerApi(Component):
         )
         if not partner.is_company:
             request_params_str += "&birthYear=%s" % partner.birthdate_date.year
-            # "countryCodes" not used for now because it limits the results, more
-            # chances to get a false negative.
+            request_params_str += "&countryCodes=%s" % partner.nationality_id.code
         conn.request(
             "GET",
             request_params_str,
@@ -94,6 +93,8 @@ class SanctionScannerApi(Component):
 
     def scan(self, partner):
         kyc_status, response = self._scan(partner)
+        scan_id = response.get("Result", {}).get("ReferenceNumber")
+        self._get_pdf_detailed_report(scan_id, partner)
         if partner.is_company:
             statuses = [kyc_status]
             responses = [response]
@@ -102,6 +103,8 @@ class SanctionScannerApi(Component):
                 sub_status, sub_response = self._scan_by_name(name)
                 statuses.append(sub_status)
                 responses.append(sub_response)
+                scan_id = sub_response.get("Result", {}).get("ReferenceNumber")
+                self._get_pdf_detailed_report(scan_id, partner)
             if any(s == "error" for s in statuses):
                 kyc_status = "error"
             elif any(s == "sanction" for s in statuses):
@@ -110,3 +113,22 @@ class SanctionScannerApi(Component):
                 kyc_status = "ok"
             response = responses
         return kyc_status, response
+
+    def _get_pdf_detailed_report(self, scan_id, partner):
+        if not scan_id:
+            return False
+        conn, headers = self._get_connection_and_header()
+        payload = ""
+        conn.request(
+            "GET",
+            "/api/Retrieving/GetDetailPdfReportByScanId?scanId=%s" % quote(scan_id),
+            payload,
+            headers,
+        )
+        res = conn.getresponse()
+        data = res.read()
+        attachment = self.env["ir.attachment"].create(
+            {"name": "%s.pdf" % scan_id, "datas": base64.b64encode(data)}
+        )
+        partner.kyc_attachment_ids += attachment
+        return True
