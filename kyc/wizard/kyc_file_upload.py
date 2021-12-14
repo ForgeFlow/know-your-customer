@@ -16,4 +16,4 @@ class KYCFileUpload(models.TransientModel):
         attachment = self.env["ir.attachment"].create(
             {"name": self.filename, "datas": self.file}
         )
-        self.partner_id.attachment_ids += attachment
+        self.partner_id.kyc_attachment_ids += attachment
