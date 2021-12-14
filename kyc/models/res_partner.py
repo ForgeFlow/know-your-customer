@@ -68,7 +68,7 @@ class Partner(models.Model):
     )
     kyc_last_scan = fields.Datetime()
     kyc_last_auto_scan = fields.Datetime()
-    attachment_ids = fields.Many2many(
+    kyc_attachment_ids = fields.Many2many(
         "ir.attachment",
         "res_partner_attachment_rel",
         "partner_id",
