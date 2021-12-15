@@ -9,7 +9,9 @@ class KYCPartnerScan(models.TransientModel):
     _description = "KYC Partner Scan"
 
     partner_id = fields.Many2one("res.partner", "Partner")
-    ultimate_beneficial_owner = fields.Char()
+    ultimate_beneficial_owner_ids = fields.Many2many(
+        "kyc.ubo", string="Ultimate beneficial owner"
+    )
     birthdate_date = fields.Date(string="Date of Birth")
     nationality_id = fields.Many2one("res.country", "Nationality")
     kyc_status = fields.Selection(
@@ -25,7 +27,6 @@ class KYCPartnerScan(models.TransientModel):
 
     def scan(self):
         fields_to_update = [
-            "ultimate_beneficial_owner",
             "birthdate_date",
             "nationality_id",
         ]
@@ -35,6 +36,9 @@ class KYCPartnerScan(models.TransientModel):
                 vals[f] = self.__getattribute__(f)
         if vals:
             self.partner_id.write(vals)
+        self.ultimate_beneficial_owner_ids.filtered(
+            lambda l: l.partner_id.id != self.partner_id.id
+        ).write({"partner_id": self.partner_id.id})
         self.partner_id._action_kyc_scan()
 
     def override_kyc_status(self):
