@@ -68,18 +68,27 @@ class SanctionScannerApi(Component):
         # TODO: more cases.
         return "sanction", response
 
-    def _scan_by_name(self, name):
+    def _scan_by_name(self, name, birthdate=None):
         # ref: http://developer.sanctionscanner.com/en/search-methods
         conn, headers = self._get_connection_and_header()
         payload = ""
         search_type = 1
-        conn.request(
-            "GET",
-            "/api/Search/SearchByName?name=%s&searchType=%s"
-            % (quote(name), search_type),
-            payload,
-            headers,
-        )
+        if name and birthdate:
+            conn.request(
+                "GET",
+                "/api/Search/SearchByName?name=%s&birthYear=%s&searchType=%s"
+                % (quote(name), birthdate, search_type),
+                payload,
+                headers,
+            )
+        else:
+            conn.request(
+                "GET",
+                "/api/Search/SearchByName?name=%s&searchType=%s"
+                % (quote(name), search_type),
+                payload,
+                headers,
+            )
         res = conn.getresponse()
         data = res.read()
         response = json.loads(data.decode("utf-8"))
@@ -98,9 +107,10 @@ class SanctionScannerApi(Component):
         if partner.is_company:
             statuses = [kyc_status]
             responses = [response]
-            for name in partner.ultimate_beneficial_owner.split(","):
-                name = name.strip()
-                sub_status, sub_response = self._scan_by_name(name)
+            for ubo in partner.ultimate_beneficial_owner_ids:
+                sub_status, sub_response = self._scan_by_name(
+                    ubo.name, ubo.birthdate and ubo.birthdate.year or None
+                )
                 statuses.append(sub_status)
                 responses.append(sub_response)
                 scan_id = sub_response.get("Result", {}).get("ReferenceNumber")
