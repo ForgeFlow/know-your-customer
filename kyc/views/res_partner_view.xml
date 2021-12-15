@@ -40,9 +40,14 @@
                         <group>
                             <field name="kyc_status" />
                             <field
-                                name="ultimate_beneficial_owner"
+                                name="ultimate_beneficial_owner_ids"
                                 attrs="{'invisible':[('is_company','=',False)]}"
-                            />
+                            >
+                                <tree editable="top">
+                                    <field name="name" />
+                                    <field name="birthdate" />
+                                </tree>
+                            </field>
                             <field
                                 name="birthdate_date"
                                 attrs="{'invisible':[('is_company','=',True)]}"

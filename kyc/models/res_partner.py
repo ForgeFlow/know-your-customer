@@ -59,7 +59,9 @@ class Partner(models.Model):
             else:
                 rec.kyc_is_expired = False
 
-    ultimate_beneficial_owner = fields.Char()
+    ultimate_beneficial_owner_ids = fields.One2many(
+        "kyc.ubo", "partner_id", "Ultimate beneficial owner"
+    )
     birthdate_date = fields.Date(string="Date of Birth")
     nationality_id = fields.Many2one("res.country", "Nationality")
     kyc_status = fields.Selection(
@@ -101,7 +103,15 @@ class Partner(models.Model):
         action = self.env.ref("kyc.kyc_partner_scan_action").read()[0]
         action["context"] = {
             "default_partner_id": self.id,
-            "default_ultimate_beneficial_owner": self.ultimate_beneficial_owner,
+            "default_ultimate_beneficial_owner_ids": [
+                (
+                    6,
+                    0,
+                    self.ultimate_beneficial_owner_ids
+                    and self.ultimate_beneficial_owner_ids.ids
+                    or [],
+                )
+            ],
             "default_birthdate_date": self.birthdate_date,
             "default_nationality_id": self.nationality_id
             and self.nationality_id.id
@@ -120,7 +130,12 @@ class Partner(models.Model):
         if self.is_company:
             res.update(
                 {
-                    "ultimate_beneficial_owner": self.ultimate_beneficial_owner,
+                    "ultimate_beneficial_owner": ",".join(
+                        [
+                            uob.name + "-" + str(uob.birthdate.year)
+                            for uob in self.ultimate_beneficial_owner_ids
+                        ]
+                    ),
                 }
             )
         else:
@@ -170,7 +185,10 @@ class Partner(models.Model):
 
     @api.model
     def _get_domain_auto_scan_partners(self):
-        return [("is_company", "=", True), ("ultimate_beneficial_owner", "!=", False)]
+        return [
+            ("is_company", "=", True),
+            ("ultimate_beneficial_owner_ids", "!=", False),
+        ]
 
     @api.model
     def auto_scan_partners(self, domain=False, period=30):
