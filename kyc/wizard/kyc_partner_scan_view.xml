@@ -10,10 +10,16 @@
                 <field name="partner_id" invisible="1" />
                 <group invisible="not context.get('scan_kyc_status')">
                     <field
-                        name="ultimate_beneficial_owner"
+                        name="ultimate_beneficial_owner_ids"
+                        domain="[('partner_id', '=', partner_id)]"
                         invisible="not context.get('required_company_fields')"
                         required="context.get('required_company_fields')"
-                    />
+                    >
+                        <tree editable="top">
+                            <field name="name" />
+                            <field name="birthdate" />
+                        </tree>
+                    </field>
                     <field
                         name="birthdate_date"
                         invisible="not context.get('required_individual_fields')"
