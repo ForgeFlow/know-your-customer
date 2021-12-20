@@ -70,12 +70,10 @@ class Partner(models.Model):
     )
     kyc_last_scan = fields.Datetime()
     kyc_last_auto_scan = fields.Datetime()
-    kyc_attachment_ids = fields.Many2many(
-        "ir.attachment",
-        "res_partner_attachment_rel",
+    kyc_document_ids = fields.One2many(
+        "kyc.document",
         "partner_id",
-        "attachment_id",
-        "Compliance documents",
+        string="Compliance documents",
     )
     kyc_is_about_expire = fields.Boolean(
         compute=_compute_kyc_is_about_expire, search=_search_kyc_is_about_expire

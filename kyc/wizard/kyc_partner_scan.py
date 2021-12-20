@@ -2,6 +2,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 from odoo import _, fields, models
+from odoo.exceptions import ValidationError
 
 
 class KYCPartnerScan(models.TransientModel):
@@ -25,21 +26,81 @@ class KYCPartnerScan(models.TransientModel):
     )
     status_override_reason = fields.Char()
 
+    def check_documents(self, partner):
+        KYCDocumentObj = self.env["kyc.document"]
+        documents = partner.kyc_document_ids
+        validation_message = ""
+        validation_messages = {
+            "company": "Certificate of UBO ownership max 3-month-old + "
+            "passports for each one is required to scan",
+            "individual": "Passport or ID card is required to scan",
+        }
+        if not documents:
+            if partner.is_company:
+                validation_message = validation_messages["company"]
+            else:
+                validation_message = validation_messages["individual"]
+        if partner.is_company:
+            message = ""
+            for ubo in self.ultimate_beneficial_owner_ids:
+                is_required_certificate = False
+                is_required_passport = False
+                if not KYCDocumentObj.search(
+                    [
+                        ("partner_id", "=", partner.id),
+                        ("kyc_ubo_id", "=", ubo.id),
+                        ("document_type", "=", "ubo_own_certificate"),
+                    ]
+                ):
+                    is_required_certificate = True
+                if not KYCDocumentObj.search(
+                    [
+                        ("partner_id", "=", partner.id),
+                        ("kyc_ubo_id", "=", ubo.id),
+                        ("document_type", "=", "ubo_passport"),
+                    ]
+                ):
+                    is_required_passport = True
+                if is_required_passport:
+                    message += "Passport"
+                if is_required_certificate:
+                    if not is_required_passport:
+                        message += "UBO Own Certificate"
+                    else:
+                        message += " And UBO Own Certificate"
+                if message:
+                    message += " is required for %s\n" % (ubo.name)
+            if message:
+                validation_message = validation_messages["company"] + "\n" + message
+        else:
+            passport = KYCDocumentObj.search(
+                [("partner_id", "=", partner.id), ("document_type", "=", "passport")]
+            )
+            id_card = KYCDocumentObj.search(
+                [("partner_id", "=", partner.id), ("document_type", "=", "id_card")]
+            )
+            if not passport and not id_card:
+                validation_message = validation_messages["individual"]
+        if validation_message:
+            raise ValidationError(_(validation_message))
+
     def scan(self):
+        partner = self.partner_id
+        self.check_documents(partner)
         fields_to_update = [
             "birthdate_date",
             "nationality_id",
         ]
         vals = {}
         for f in fields_to_update:
-            if self.__getattribute__(f) != self.partner_id.__getattribute__(f):
+            if self.__getattribute__(f) != partner.__getattribute__(f):
                 vals[f] = self.__getattribute__(f)
         if vals:
-            self.partner_id.write(vals)
+            partner.write(vals)
         self.ultimate_beneficial_owner_ids.filtered(
-            lambda l: l.partner_id.id != self.partner_id.id
-        ).write({"partner_id": self.partner_id.id})
-        self.partner_id._action_kyc_scan()
+            lambda l: l.partner_id.id != partner.id
+        ).write({"partner_id": partner.id})
+        partner._action_kyc_scan()
 
     def override_kyc_status(self):
         self.partner_id.message_post(
