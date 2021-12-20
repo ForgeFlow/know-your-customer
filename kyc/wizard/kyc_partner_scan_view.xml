@@ -18,9 +18,11 @@
                     class="oe_grey"
                     invisible="not context.get('scan_kyc_status') or not context.get('required_company_fields')"
                 >
-                    Certificate of UBO
-                    ownership max 3-month-old + passports for each
-                    one required to scan
+                    Required Documents for each Ultimate Beneficial Owner (UBO):
+                    <ul>
+                        <li>Passport</li>
+                        <li>Certificate of ownership (maximum 3 months old)</li>
+                    </ul>
                 </p>
                 <group invisible="not context.get('scan_kyc_status')">
                     <field
