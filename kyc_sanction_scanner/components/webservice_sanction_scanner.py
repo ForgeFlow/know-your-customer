@@ -137,8 +137,16 @@ class SanctionScannerApi(Component):
         )
         res = conn.getresponse()
         data = res.read()
+        doc_name = "%s.pdf" % scan_id
         attachment = self.env["ir.attachment"].create(
-            {"name": "%s.pdf" % scan_id, "datas": base64.b64encode(data)}
+            {"name": doc_name, "datas": base64.b64encode(data)}
         )
-        partner.kyc_attachment_ids += attachment
+        kyc_doc = self.env["kyc.document"].create(
+            {
+                "attachment_id": attachment.id,
+                "name": doc_name,
+                "document_type": "scan_certificate",
+            }
+        )
+        partner.kyc_document_ids += kyc_doc
         return True

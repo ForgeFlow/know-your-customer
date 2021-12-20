@@ -70,12 +70,10 @@ class Partner(models.Model):
     )
     kyc_last_scan = fields.Datetime()
     kyc_last_auto_scan = fields.Datetime()
-    kyc_attachment_ids = fields.Many2many(
-        "ir.attachment",
-        "res_partner_attachment_rel",
+    kyc_document_ids = fields.One2many(
+        "kyc.document",
         "partner_id",
-        "attachment_id",
-        "Compliance documents",
+        string="Compliance documents",
     )
     kyc_is_about_expire = fields.Boolean(
         compute=_compute_kyc_is_about_expire, search=_search_kyc_is_about_expire
@@ -172,6 +170,8 @@ class Partner(models.Model):
         self.write(vals)
 
     def action_override_kyc_status(self):
+        if not self.env.user.has_group("kyc.group_override_kyc_status"):
+            return False
         action = self.env.ref("kyc.kyc_partner_scan_action").read()[0]
         action["name"] = "Override KYC Status"
         action["context"] = {

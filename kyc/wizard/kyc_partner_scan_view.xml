@@ -8,6 +8,22 @@
         <field name="arch" type="xml">
             <form string="KYC Scan">
                 <field name="partner_id" invisible="1" />
+                <p
+                    class="oe_grey"
+                    invisible="not context.get('scan_kyc_status') or not context.get('required_individual_fields')"
+                >
+                    Passport or ID card required to scan
+                </p>
+                <p
+                    class="oe_grey"
+                    invisible="not context.get('scan_kyc_status') or not context.get('required_company_fields')"
+                >
+                    Required Documents for each Ultimate Beneficial Owner (UBO):
+                    <ul>
+                        <li>Passport</li>
+                        <li>Certificate of ownership (maximum 3 months old)</li>
+                    </ul>
+                </p>
                 <group invisible="not context.get('scan_kyc_status')">
                     <field
                         name="ultimate_beneficial_owner_ids"
