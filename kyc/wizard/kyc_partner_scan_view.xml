@@ -8,6 +8,20 @@
         <field name="arch" type="xml">
             <form string="KYC Scan">
                 <field name="partner_id" invisible="1" />
+                <p
+                    class="oe_grey"
+                    invisible="not context.get('scan_kyc_status') or not context.get('required_individual_fields')"
+                >
+                    Passport or ID card required to scan
+                </p>
+                <p
+                    class="oe_grey"
+                    invisible="not context.get('scan_kyc_status') or not context.get('required_company_fields')"
+                >
+                    Certificate of UBO
+                    ownership max 3-month-old + passports for each
+                    one required to scan
+                </p>
                 <group invisible="not context.get('scan_kyc_status')">
                     <field
                         name="ultimate_beneficial_owner_ids"
