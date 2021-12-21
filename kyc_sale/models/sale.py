@@ -10,10 +10,10 @@ class SaleOrder(models.Model):
     @api.onchange("partner_id")
     def onchange_partner_id(self):
         if self.partner_id:
-            self.partner_id._kyc_accept_transaction()
+            self.partner_id._kyc_accept_transaction(self)
         return super(SaleOrder, self).onchange_partner_id()
 
     def action_confirm(self):
         for rec in self:
-            rec.partner_id._kyc_accept_transaction()
+            rec.partner_id._kyc_accept_transaction(rec)
         return super().action_confirm()
