@@ -10,12 +10,12 @@ class AccountMove(models.Model):
     @api.onchange("partner_id")
     def _onchange_partner_id(self):
         if self.partner_id:
-            self.partner_id._kyc_accept_transaction()
+            self.partner_id._kyc_accept_transaction(self)
         return super()._onchange_partner_id()
 
     def _post(self, soft=True):
         if self.partner_id:
-            self.partner_id._kyc_accept_transaction()
+            self.partner_id._kyc_accept_transaction(self)
         return super()._post(soft=soft)
 
 
@@ -25,4 +25,4 @@ class AccountPayment(models.Model):
     @api.onchange("partner_id")
     def _onchange_partner_id(self):
         if self.partner_id:
-            self.partner_id._kyc_accept_transaction()
+            self.partner_id._kyc_accept_transaction(self)

@@ -80,7 +80,7 @@ class Partner(models.Model):
     )
     kyc_is_expired = fields.Boolean(compute=_compute_kyc_is_expired)
 
-    def _kyc_accept_transaction(self, raise_if_not=True):
+    def _kyc_accept_transaction(self, _record, raise_if_not=True):
         self.ensure_one()
         accept = not self.kyc_is_expired and self.kyc_status == "ok"
         if not accept and raise_if_not:
