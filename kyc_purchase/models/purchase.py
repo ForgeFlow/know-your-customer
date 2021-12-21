@@ -10,9 +10,10 @@ class PurchaseOrder(models.Model):
     @api.onchange("partner_id")
     def onchange_partner_id(self):
         if self.partner_id:
-            self.partner_id._kyc_accept_transaction()
+            self.partner_id._kyc_accept_transaction(self)
         return super().onchange_partner_id()
 
     def button_confirm(self):
-        self.partner_id._kyc_accept_transaction()
+        for rec in self:
+            rec.partner_id._kyc_accept_transaction(rec)
         return super().button_confirm()
