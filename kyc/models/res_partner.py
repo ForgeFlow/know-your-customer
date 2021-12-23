@@ -79,6 +79,7 @@ class Partner(models.Model):
         compute=_compute_kyc_is_about_expire, search=_search_kyc_is_about_expire
     )
     kyc_is_expired = fields.Boolean(compute=_compute_kyc_is_expired)
+    is_government = fields.Boolean(string="Is Government?")
 
     def _kyc_accept_transaction(self, _record, raise_if_not=True):
         self.ensure_one()
@@ -94,11 +95,9 @@ class Partner(models.Model):
         return self.env.company.kyc_webservice_backend_id
 
     def action_kyc_scan(self):
-        if not self.env["webservice.backend"].search([("is_kyc", "=", True)]):
+        if not self.env["webservice.backend"].sudo().search([("is_kyc", "=", True)]):
             raise NotImplementedError()
-        # for rec in self:
-        #     rec._action_kyc_scan()
-        action = self.env.ref("kyc.kyc_partner_scan_action").read()[0]
+        action = self.env.ref("kyc.kyc_partner_scan_action").sudo().read()[0]
         action["context"] = {
             "default_partner_id": self.id,
             "default_ultimate_beneficial_owner_ids": [
@@ -152,7 +151,7 @@ class Partner(models.Model):
             raise UserError(
                 _("KYC provider not configured. Contact your system administrator.")
             )
-        kyc_status, response = backend.call("scan", self)
+        kyc_status, response = backend.sudo().call("scan", self)
         self.env["kyc.process.log"].sudo().create(
             {
                 "req_data": self._get_request_dict(),
