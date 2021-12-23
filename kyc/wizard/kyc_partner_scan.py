@@ -25,8 +25,11 @@ class KYCPartnerScan(models.TransientModel):
         default="pending",
     )
     status_override_reason = fields.Char()
+    is_government = fields.Boolean(string="Is Government?")
 
     def check_documents(self, partner):
+        if partner.is_company and partner.is_government:
+            return True
         KYCDocumentObj = self.env["kyc.document"]
         documents = partner.kyc_document_ids
         validation_message = ""

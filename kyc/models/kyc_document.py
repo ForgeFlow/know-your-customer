@@ -29,3 +29,6 @@ class KYCDocument(models.Model):
             "target": "self",
             "nodestroy": False,
         }
+
+    def delete_file(self):
+        self.unlink()
