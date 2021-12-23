@@ -78,7 +78,7 @@
                             </p>
                             <p
                                 class="oe_grey"
-                                attrs="{'invisible':[('is_company','=',False)]}"
+                                attrs="{'invisible':['|',('is_company','=',False),('is_government','=',True)]}"
                             >
                                 Required Documents for each Ultimate Beneficial Owner (UBO):
                                 <ul>
@@ -160,6 +160,7 @@
                             type="object"
                             class="btn fa fa-trash"
                             title="Delete Document"
+                            confirm="Do you want to delete this document?"
                         />
                     </tree>
                 </field>

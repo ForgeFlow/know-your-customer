@@ -4,4 +4,5 @@ access_kyc_file_upload,kyc.file.upload,model_kyc_file_upload,base.group_user,1,1
 access_kyc_process_log,kyc.process.log,model_kyc_process_log,kyc.group_read_kyc_logs,1,0,0,0
 access_kyc_status_override_log,kyc.status.override.log,model_kyc_status_override_log,kyc.group_read_kyc_logs,1,0,0,0
 access_kyc_ubo,kyc.ubo,model_kyc_ubo,base.group_user,1,1,1,1
-access_kyc_document,kyc.document,model_kyc_document,base.group_user,1,1,1,1
+access_kyc_document_user,kyc.document,model_kyc_document,base.group_user,1,1,1,0
+access_kyc_document_delete,kyc.document,model_kyc_document,kyc.group_delete_kyc_document,1,1,1,1
