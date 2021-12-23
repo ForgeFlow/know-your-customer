@@ -78,13 +78,13 @@
                             </p>
                             <p
                                 class="oe_grey"
-                                attrs="{'invisible':[('is_company','=',False)]}"
+                                attrs="{'invisible':['|',('is_company','=',False),('is_government','=',True)]}"
                             >
                                 Required Documents for each Ultimate Beneficial Owner (UBO):
                                 <ul>
                                     <li>Passport</li>
-                                    <li
-                                    >Certificate of ownership (maximum 3 months old)</li>
+                                    <li>Certificate of ownership (maximum 3 months old)
+                                    </li>
                                 </ul>
                             </p>
                             <span class="oe_inline">
@@ -130,6 +130,41 @@
                     pending.
                 </h3>
             </header>
+            <field name="vat" position="after">
+                <field name="is_government" />
+            </field>
+        </field>
+    </record>
+
+    <record id="view_partner_form_delete_doc" model="ir.ui.view">
+        <field name="name">res.partner.form - kyc - delete doc</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="kyc.view_partner_form" />
+        <field name="groups_id" eval="[(4, ref('kyc.group_delete_kyc_document'))]" />
+        <field name="arch" type="xml">
+            <field name="kyc_document_ids" position="replace">
+                <field name="kyc_document_ids" mode="tree" readonly="1" nolabel="1">
+                    <tree>
+                        <field name="name" />
+                        <field name="document_type" />
+                        <field name="kyc_ubo_id" />
+                        <field name="create_date" />
+                        <button
+                            name="download_file"
+                            type="object"
+                            class="btn fa fa-download"
+                            title="Download Document"
+                        />
+                        <button
+                            name="delete_file"
+                            type="object"
+                            class="btn fa fa-trash"
+                            title="Delete Document"
+                            confirm="Do you want to delete this document?"
+                        />
+                    </tree>
+                </field>
+            </field>
         </field>
     </record>
 
