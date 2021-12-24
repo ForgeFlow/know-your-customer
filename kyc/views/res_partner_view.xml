@@ -68,7 +68,11 @@
                             />
                         </group>
                     </group>
-                    <group name="kyc_documents" string="Documents">
+                    <group
+                        name="kyc_documents"
+                        string="Documents"
+                        attrs="{'invisible':[('is_government','=',True)]}"
+                    >
                         <div>
                             <p
                                 class="oe_grey"
@@ -78,7 +82,7 @@
                             </p>
                             <p
                                 class="oe_grey"
-                                attrs="{'invisible':['|',('is_company','=',False),('is_government','=',True)]}"
+                                attrs="{'invisible':[('is_company','=',False)]}"
                             >
                                 Required Documents for each Ultimate Beneficial Owner (UBO):
                                 <ul>
@@ -131,7 +135,10 @@
                 </h3>
             </header>
             <field name="vat" position="after">
-                <field name="is_government" />
+                <field
+                    name="is_government"
+                    attrs="{'invisible':[('is_company','=',False)]}"
+                />
             </field>
         </field>
     </record>
