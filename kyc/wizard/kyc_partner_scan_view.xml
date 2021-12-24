@@ -26,7 +26,10 @@
                         <li>Certificate of ownership (maximum 3 months old)</li>
                     </ul>
                 </p>
-                <group invisible="not context.get('scan_kyc_status')">
+                <group
+                    invisible="not context.get('scan_kyc_status')"
+                    attrs="{'invisible':[('is_government','=',True)]}"
+                >
                     <field
                         name="ultimate_beneficial_owner_ids"
                         domain="[('partner_id', '=', partner_id)]"
