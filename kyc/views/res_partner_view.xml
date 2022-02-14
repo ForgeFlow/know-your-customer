@@ -15,27 +15,33 @@
                         class="btn btn-primary"
                         string="KYC Scan"
                         type="object"
+                        attrs="{'invisible': [('kyc_scan_required', '=', False)]}"
                     />
                     <button
                         name="action_override_kyc_status"
                         string="KYC Checked"
                         class="btn btn-success"
                         type="object"
-                        attrs="{'invisible': [('kyc_status', '!=', 'ok')]}"
+                        attrs="{'invisible': ['|', ('kyc_status', '!=', 'ok'), ('kyc_scan_required', '=', False)]}"
                     />
                     <button
                         name="action_override_kyc_status"
                         string="KYC Checked"
                         class="btn btn-danger"
                         type="object"
-                        attrs="{'invisible': [('kyc_status', '!=', 'sanction')]}"
+                        attrs="{'invisible': ['|', ('kyc_status', '!=', 'sanction'), ('kyc_scan_required', '=', False)]}"
                     />
                 </header>
             </sheet>
             <notebook position="inside">
-                <page name="kyc" string="KYC Compliance">
+                <page
+                    name="kyc"
+                    string="KYC Compliance"
+                    attrs="{'invisible': [('kyc_scan_required', '=', False)]}"
+                >
                     <group>
                         <group>
+                            <field name="kyc_scan_required" invisible="1" />
                             <field
                                 name="ultimate_beneficial_owner_ids"
                                 attrs="{'invisible':['|', ('is_company','=',False), ('is_government','=',True)]}"
@@ -124,7 +130,7 @@
                 <h3
                     class="alert alert-warning"
                     role="alert"
-                    attrs="{'invisible':[('kyc_status','!=','pending')]}"
+                    attrs="{'invisible':['|', ('kyc_status','!=','pending'), ('kyc_scan_required', '=', False)]}"
                 >KYC
                     Scan is
                     pending.
