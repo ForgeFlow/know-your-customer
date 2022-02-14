@@ -80,6 +80,20 @@ class Partner(models.Model):
     )
     kyc_is_expired = fields.Boolean(compute=_compute_kyc_is_expired)
     is_government = fields.Boolean(string="Is Government?")
+    kyc_scan_required = fields.Boolean(
+        compute="_compute_kyc_scan_required",
+        help="Indicates that a contact need to be considered for KYC scans and"
+        "therefore KYC options need to be displayed",
+    )
+
+    def _compute_kyc_scan_required(self):
+        for rec in self:
+            rec.kyc_scan_required = rec._is_kyc_scan_required()
+
+    def _is_kyc_scan_required(self):
+        """Define custom logic to require KYC scan"""
+        self.ensure_one()
+        return True
 
     def _kyc_accept_transaction(self, _record, raise_if_not=True):
         self.ensure_one()
