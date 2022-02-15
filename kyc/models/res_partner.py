@@ -185,7 +185,7 @@ class Partner(models.Model):
     def action_override_kyc_status(self):
         if not self.env.user.has_group("kyc.group_override_kyc_status"):
             return False
-        action = self.env.ref("kyc.kyc_partner_scan_action").read()[0]
+        action = self.env.ref("kyc.kyc_partner_scan_action").sudo().read()[0]
         action["name"] = "Override KYC Status"
         action["context"] = {
             "default_partner_id": self.id,
