@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2021 ForgeFlow S.L. (https://www.forgeflow.com)
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
+ -->
+<odoo>
+    <record id="view_kyc_ubo_form" model="ir.ui.view">
+        <field name="name">kyc.ubo.form</field>
+        <field name="model">kyc.ubo</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="name" />
+                    <field name="birthdate" />
+                </group>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2021 ForgeFlow S.L. (https://www.forgeflow.com)
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
+ -->
+<odoo>
+    <menuitem
+        id="kyc_log_main_menu"
+        parent="contacts.menu_contacts"
+        groups="kyc.group_read_kyc_logs"
+        name="KYC Log"
+    />
+
+    <record id="kyc_process_log_form" model="ir.ui.view">
+        <field name="name">kyc.process.log.form</field>
+        <field name="model">kyc.process.log</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="kyc_result" />
+                        <field name="partner_id" />
+                        <field name="author_id" />
+                        <field name="req_data" />
+                    </group>
+                    <notebook>
+                        <page name="res" string="Response">
+                            <field name="res_data" nolabel="1" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="kyc_process_log_tree" model="ir.ui.view">
+        <field name="name">kyc.process.log.tree</field>
+        <field name="model">kyc.process.log</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" />
+                <field name="kyc_result" />
+                <field name="partner_id" />
+                <field name="author_id" />
+                <field name="create_date" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="kyc_process_log_search" model="ir.ui.view">
+        <field name="name">kyc.process.log.search</field>
+        <field name="model">kyc.process.log</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="kyc_result" />
+                <field name="partner_id" />
+                <field name="author_id" />
+            </search>
+        </field>
+    </record>
+
+    <record id="kyc_process_log_action" model="ir.actions.act_window">
+        <field name="name">KYC Process Log</field>
+        <field name="res_model">kyc.process.log</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem
+        id="kyc_process_log_menu"
+        parent="kyc_log_main_menu"
+        action="kyc_process_log_action"
+    />
+
+    <record id="kyc_status_override_log_tree" model="ir.ui.view">
+        <field name="name">kyc.status.override.log.tree</field>
+        <field name="model">kyc.status.override.log</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" />
+                <field name="old_status" />
+                <field name="new_status" />
+                <field name="override_reason" />
+                <field name="partner_id" />
+                <field name="author_id" />
+                <field name="create_date" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="kyc_status_override_log_search" model="ir.ui.view">
+        <field name="name">kyc.status.override.log.search</field>
+        <field name="model">kyc.status.override.log</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="old_status" />
+                <field name="new_status" />
+                <field name="override_reason" />
+                <field name="partner_id" />
+                <field name="author_id" />
+            </search>
+        </field>
+    </record>
+
+    <record id="kyc_status_override_log_action" model="ir.actions.act_window">
+        <field name="name">KYC Status Override Log</field>
+        <field name="res_model">kyc.status.override.log</field>
+        <field name="view_mode">tree</field>
+    </record>
+
+    <menuitem
+        id="kyc_status_override_log_menu"
+        parent="kyc_log_main_menu"
+        action="kyc_status_override_log_action"
+    />
+</odoo>

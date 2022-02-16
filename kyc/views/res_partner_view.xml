@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2021 ForgeFlow S.L. (https://www.forgeflow.com)
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
+ -->
+<odoo>
+    <record id="view_partner_form" model="ir.ui.view">
+        <field name="name">res.partner.form - kyc</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form" />
+        <field name="arch" type="xml">
+            <sheet position="before">
+                <header>
+                    <button
+                        name="action_kyc_scan"
+                        class="btn btn-primary"
+                        string="KYC Scan"
+                        type="object"
+                        attrs="{'invisible': [('kyc_scan_required', '=', False)]}"
+                    />
+                    <button
+                        name="action_override_kyc_status"
+                        string="KYC Checked"
+                        class="btn btn-success"
+                        type="object"
+                        attrs="{'invisible': ['|', ('kyc_status', '!=', 'ok'), ('kyc_scan_required', '=', False)]}"
+                    />
+                    <button
+                        name="action_override_kyc_status"
+                        string="KYC Checked"
+                        class="btn btn-danger"
+                        type="object"
+                        attrs="{'invisible': ['|', ('kyc_status', '!=', 'sanction'), ('kyc_scan_required', '=', False)]}"
+                    />
+                </header>
+            </sheet>
+            <notebook position="inside">
+                <page
+                    name="kyc"
+                    string="KYC Compliance"
+                    attrs="{'invisible': [('kyc_scan_required', '=', False)]}"
+                >
+                    <group>
+                        <group>
+                            <field name="kyc_scan_required" invisible="1" />
+                            <field
+                                name="ultimate_beneficial_owner_ids"
+                                attrs="{'invisible':['|', ('is_company','=',False), ('is_government','=',True)]}"
+                            >
+                                <tree editable="top">
+                                    <field name="name" />
+                                    <field name="birthdate" />
+                                </tree>
+                            </field>
+                            <field
+                                name="birthdate_date"
+                                attrs="{'invisible':[('is_company','=',True)]}"
+                            />
+                            <field
+                                name="nationality_id"
+                                attrs="{'invisible':[('is_company','=',True)]}"
+                            />
+                        </group>
+                        <group>
+                            <field name="kyc_status" readonly="1" />
+                            <field
+                                name="kyc_last_scan"
+                                readonly="1"
+                                string="Last Scan on"
+                            />
+                            <field
+                                name="kyc_last_auto_scan"
+                                readonly="1"
+                                string="Last Auto Scan on"
+                            />
+                        </group>
+                    </group>
+                    <group name="kyc_documents" string="Documents">
+                        <div>
+                            <p
+                                class="oe_grey"
+                                attrs="{'invisible':['|', ('is_company','=',True), ('is_government','=',True)]}"
+                            >
+                                Required Document: Passport or ID card
+                            </p>
+                            <p
+                                class="oe_grey"
+                                attrs="{'invisible':['|', ('is_company','=',False), ('is_government','=',True)]}"
+                            >
+                                Required Documents for each Ultimate Beneficial Owner (UBO):
+                                <ul>
+                                    <li>Passport</li>
+                                    <li>Certificate of ownership (maximum 3 months old)
+                                    </li>
+                                </ul>
+                            </p>
+                            <span class="oe_inline">
+                                <button
+                                    name="%(kyc_file_upload_action)d"
+                                    type="action"
+                                    context="{'default_partner_id':active_id}"
+                                    string="Upload Document"
+                                    class="btn btn-link mb-2 fa fa-upload"
+                                    title="Upload Document"
+                                />
+                            </span>
+                            <field
+                                name="kyc_document_ids"
+                                mode="tree"
+                                readonly="1"
+                                nolabel="1"
+                            >
+                                <tree>
+                                    <field name="name" />
+                                    <field name="document_type" />
+                                    <field name="kyc_ubo_id" />
+                                    <field name="create_date" />
+                                    <button
+                                        name="download_file"
+                                        type="object"
+                                        class="btn fa fa-download"
+                                        title="Download Document"
+                                    />
+                                    <button
+                                        name="delete_file"
+                                        type="object"
+                                        class="btn fa fa-trash"
+                                        title="Delete Document"
+                                        groups="kyc.group_delete_kyc_document"
+                                        confirm="Do you want to delete this document?"
+                                    />
+                                </tree>
+                            </field>
+                        </div>
+                    </group>
+                </page>
+            </notebook>
+            <header position="after">
+                <h3
+                    class="alert alert-warning"
+                    role="alert"
+                    attrs="{'invisible':['|', ('kyc_status','!=','pending'), ('kyc_scan_required', '=', False)]}"
+                >KYC
+                    Scan is
+                    pending.
+                </h3>
+            </header>
+            <field name="vat" position="after">
+                <field
+                    name="is_government"
+                    attrs="{'invisible':[('is_company','=',False)]}"
+                />
+            </field>
+        </field>
+    </record>
+
+    <record id="res_partner_kanban_view" model="ir.ui.view">
+        <field name="name">res.partner.kanban.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.res_partner_kanban_view" />
+        <field name="arch" type="xml">
+            <field name="mobile" position="after">
+                <field name="kyc_is_about_expire" />
+            </field>
+            <xpath expr="//span[hasclass('oe_kanban_partner_links')]" position="after">
+                <span t-if="record.kyc_is_about_expire.raw_value">
+                    <i
+                        class="fa fa-exclamation-triangle text-warning"
+                        role="img"
+                        aria-label="Contact about to expire"
+                        title="Contact about to expire"
+                    />
+                </span>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_tree" model="ir.ui.view">
+        <field name="name">res.partner.tree.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree" />
+        <field name="arch" type="xml">
+            <field name="display_name" position="after">
+                <field name="kyc_is_about_expire" invisible="1" />
+            </field>
+            <xpath expr="//tree" position="attributes">
+                <attribute name="decoration-warning">kyc_is_about_expire</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_res_partner_filter" model="ir.ui.view">
+        <field name="name">res.partner.view.search.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter" />
+        <field name="arch" type="xml">
+            <filter name="inactive" position="after">
+                <separator />
+                <filter
+                    string="KYC Scan about to expire"
+                    name="contact_about_expire"
+                    domain="[('kyc_is_about_expire', '=', True)]"
+                />
+            </filter>
+        </field>
+    </record>
+</odoo>
