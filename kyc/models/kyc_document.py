@@ -6,6 +6,7 @@ from odoo import fields, models
 
 class KYCDocument(models.Model):
     _name = "kyc.document"
+    _description = "KYC Document"
 
     name = fields.Char()
     partner_id = fields.Many2one("res.partner", string="Contact")
