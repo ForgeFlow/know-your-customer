@@ -6,6 +6,7 @@ from odoo import fields, models
 
 class KYCUBO(models.Model):
     _name = "kyc.ubo"
+    _description = "KYC UBO"
 
     name = fields.Char(required=1)
     birthdate = fields.Date(required=1)

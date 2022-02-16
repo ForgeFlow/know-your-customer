@@ -8,6 +8,7 @@ from .res_partner import KYC_STATUSES
 
 class KYCProcessLog(models.Model):
     _name = "kyc.process.log"
+    _description = "KYC Process Log"
 
     name = fields.Char(
         copy=False,
