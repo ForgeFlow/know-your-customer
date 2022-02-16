@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<odoo noupdate="1">
+    <record id="kyc_sanction_scanner_webservice" model="webservice.backend">
+        <field name="tech_name">kyc_sanction_scanner</field>
+        <field name="name">Sanction Scanner</field>
+        <field name="url">sandbox-api.sanctionscanner.com</field>
+        <field name="is_kyc">1</field>
+        <field name="protocol">http</field>
+        <field name="content_type">application/xml</field>
+    </record>
+</odoo>
