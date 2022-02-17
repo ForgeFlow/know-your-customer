@@ -19,18 +19,25 @@ class Partner(models.Model):
     _inherit = "res.partner"
 
     def name_get(self):
-        res = []
-        for partner in self:
-            if partner.kyc_is_about_expire:
-                res.append(
+        res = super().name_get()
+        warning_partners = self.filtered(lambda r: r.kyc_is_about_expire)
+        if not warning_partners:
+            return res
+
+        new_res = []
+        for partner_id, name in res:
+            if partner_id in warning_partners.ids:
+                partner = warning_partners.filtered(lambda r: r.id == partner_id)
+                new_res.append(
                     (
                         partner.id,
-                        "%s %s" % (partner.name, (" (Contact about to expire)")),
+                        "%s %s"
+                        % (partner.name, (" (Contact KYC Scan about to expire)")),
                     )
                 )
             else:
-                res.append((partner.id, partner.name))
-        return res
+                new_res.append((partner_id, name))
+        return new_res
 
     def _compute_kyc_is_about_expire(self):
         for rec in self:
