@@ -16,8 +16,8 @@
                             name="kyc_ubo_id"
                             options="{'no_create': True, 'no_create_edit': True}"
                             domain="[('partner_id','=',partner_id)]"
-                            attrs="{'required':[('document_type','in',['ubo_own_certificate','ubo_passport'])],
-                               'invisible':[('document_type','not in',['ubo_own_certificate','ubo_passport'])]}"
+                            attrs="{'required':[('document_type','in',['ubo_passport'])],
+                               'invisible':[('document_type','not in',['ubo_passport'])]}"
                         />
                     </group>
                 </group>

@@ -34,8 +34,8 @@ class KYCPartnerScan(models.TransientModel):
         documents = partner.kyc_document_ids
         validation_message = ""
         validation_messages = {
-            "company": "Certificate of UBO ownership max 3-month-old + "
-            "passports for each one is required to scan",
+            "company": "Passport for each UBO and at least one "
+            "UBO certificate is required to scan",
             "individual": "Passport or ID card is required to scan",
         }
         if not documents:
@@ -44,18 +44,17 @@ class KYCPartnerScan(models.TransientModel):
             else:
                 validation_message = validation_messages["individual"]
         if partner.is_company:
-            message = ""
+            certificate_message = ""
+            passport_message = ""
+            if not KYCDocumentObj.search(
+                [
+                    ("partner_id", "=", partner.id),
+                    ("document_type", "=", "ubo_own_certificate"),
+                ]
+            ):
+                certificate_message = "UBO Certificate is required"
             for ubo in self.ultimate_beneficial_owner_ids:
-                is_required_certificate = False
                 is_required_passport = False
-                if not KYCDocumentObj.search(
-                    [
-                        ("partner_id", "=", partner.id),
-                        ("kyc_ubo_id", "=", ubo.id),
-                        ("document_type", "=", "ubo_own_certificate"),
-                    ]
-                ):
-                    is_required_certificate = True
                 if not KYCDocumentObj.search(
                     [
                         ("partner_id", "=", partner.id),
@@ -65,16 +64,15 @@ class KYCPartnerScan(models.TransientModel):
                 ):
                     is_required_passport = True
                 if is_required_passport:
-                    message += "Passport"
-                if is_required_certificate:
-                    if not is_required_passport:
-                        message += "UBO Own Certificate"
-                    else:
-                        message += " And UBO Own Certificate"
-                if message:
-                    message += " is required for %s\n" % (ubo.name)
+                    passport_message += "Passport is required for %s\n" % (ubo.name)
+            if certificate_message and passport_message:
+                message = certificate_message + "\n" + passport_message
+            else:
+                message = certificate_message or passport_message
             if message:
-                validation_message = validation_messages["company"] + "\n" + message
+                validation_message = (
+                    validation_messages["company"] + "\n\nErrors Detected:\n" + message
+                )
         else:
             passport = KYCDocumentObj.search(
                 [("partner_id", "=", partner.id), ("document_type", "=", "passport")]
