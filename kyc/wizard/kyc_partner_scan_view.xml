@@ -20,10 +20,10 @@
                     invisible="not context.get('scan_kyc_status') or not context.get('required_company_fields')"
                     attrs="{'invisible':[('is_government','=',True)]}"
                 >
-                    Required Documents for each Ultimate Beneficial Owner (UBO):
+                    Required Documents:
                     <ul>
-                        <li>Passport</li>
-                        <li>Certificate of ownership (maximum 3 months old)</li>
+                        <li>Passport for each Ultimate Beneficial Owner.</li>
+                        <li>An owner certificate (a single one for all UBOs)</li>
                     </ul>
                 </p>
                 <group
