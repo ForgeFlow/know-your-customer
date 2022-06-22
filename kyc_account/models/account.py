@@ -14,8 +14,9 @@ class AccountMove(models.Model):
         return super()._onchange_partner_id()
 
     def _post(self, soft=True):
-        if self.partner_id:
-            self.partner_id._kyc_accept_transaction(self)
+        for rec in self:
+            if rec.partner_id:
+                rec.partner_id._kyc_accept_transaction(rec)
         return super()._post(soft=soft)
 
 
