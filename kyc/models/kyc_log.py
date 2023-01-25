@@ -1,4 +1,4 @@
-# Copyright 2021 ForgeFlow S.L. (https://www.forgeflow.com)
+# Copyright 2021-23 ForgeFlow S.L. (https://www.forgeflow.com)
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 from odoo import fields, models
@@ -9,6 +9,7 @@ from .res_partner import KYC_STATUSES
 class KYCProcessLog(models.Model):
     _name = "kyc.process.log"
     _description = "KYC Process Log"
+    _order = "id desc"
 
     name = fields.Char(
         copy=False,
@@ -23,6 +24,7 @@ class KYCProcessLog(models.Model):
 
 class KYCStatusOverrideLog(models.Model):
     _name = "kyc.status.override.log"
+    _order = "id desc"
 
     name = fields.Char(
         copy=False,

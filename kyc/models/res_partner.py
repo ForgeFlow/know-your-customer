@@ -18,32 +18,11 @@ KYC_STATUSES = [
 class Partner(models.Model):
     _inherit = "res.partner"
 
-    def name_get(self):
-        res = super().name_get()
-        warning_partners = self.filtered(lambda r: r.kyc_is_about_expire)
-        if not warning_partners:
-            return res
-
-        new_res = []
-        for partner_id, name in res:
-            if partner_id in warning_partners.ids:
-                partner = warning_partners.filtered(lambda r: r.id == partner_id)
-                new_res.append(
-                    (
-                        partner.id,
-                        "%s %s"
-                        % (partner.name, (" (Contact KYC Scan about to expire)")),
-                    )
-                )
-            else:
-                new_res.append((partner_id, name))
-        return new_res
-
     def _compute_kyc_is_about_expire(self):
         for rec in self:
             if rec.kyc_status and rec.kyc_last_scan:
                 delta = datetime.today() - rec.kyc_last_scan
-                if delta.days >= 335 and delta.days <= 365:
+                if delta.days >= 335 and delta.days < 365:
                     rec.kyc_is_about_expire = True
                 else:
                     rec.kyc_is_about_expire = False
@@ -59,12 +38,19 @@ class Partner(models.Model):
         for rec in self:
             if rec.kyc_status and rec.kyc_last_scan:
                 delta = datetime.today() - rec.kyc_last_scan
-                if delta.days > 365:
+                if delta.days >= 365:
                     rec.kyc_is_expired = True
                 else:
                     rec.kyc_is_expired = False
             else:
                 rec.kyc_is_expired = False
+
+    def _search_kyc_is_expired(self, operator, value):
+        if operator != "=" or not isinstance(value, bool):
+            raise UserError(_("Unsupported search operation"))
+        expiring_date = datetime.now() - timedelta(days=365)
+        operator = "<" if value else ">="
+        return [("kyc_status", "=", "ok"), ("kyc_last_scan", operator, expiring_date)]
 
     ultimate_beneficial_owner_ids = fields.One2many(
         "kyc.ubo", "partner_id", "Ultimate beneficial owner"
@@ -85,7 +71,10 @@ class Partner(models.Model):
     kyc_is_about_expire = fields.Boolean(
         compute=_compute_kyc_is_about_expire, search=_search_kyc_is_about_expire
     )
-    kyc_is_expired = fields.Boolean(compute=_compute_kyc_is_expired)
+    kyc_is_expired = fields.Boolean(
+        compute="_compute_kyc_is_expired",
+        search="_search_kyc_is_expired",
+    )
     is_government = fields.Boolean(string="Is Government?")
     kyc_scan_required = fields.Boolean(
         compute="_compute_kyc_scan_required",
