@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2023 ForgeFlow S.L. (https://www.forgeflow.com)
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
+ -->
+<odoo>
+    <record id="view_order_form" model="ir.ui.view">
+        <field name="name">sale.order.form - kyc_sale</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="arch" type="xml">
+            <header position="after">
+                <field name="kyc_is_about_expire" invisible="1" />
+                <field name="kyc_is_expired" invisible="1" />
+                <h3
+                    class="alert alert-danger"
+                    role="alert"
+                    attrs="{'invisible': [('kyc_is_expired', '!=', True)]}"
+                    style="margin-bottom:0px;"
+                >
+                    <p>
+                        <i class="fa fa-exclamation-triangle" />
+                        KYC Scan is expired.
+                    </p>
+                </h3>
+                <h3
+                    class="alert alert-warning"
+                    role="alert"
+                    attrs="{'invisible': [('kyc_is_about_expire', '!=', True)]}"
+                    style="margin-bottom:0px;"
+                >
+                    <p>
+                        <i class="fa fa-exclamation-triangle" />
+                        KYC Scan is about to expire.
+                    </p>
+                </h3>
+            </header>
+        </field>
+    </record>
+
+</odoo>
