@@ -1,4 +1,4 @@
-# Copyright 2021 ForgeFlow S.L. (https://www.forgeflow.com)
+# Copyright 2021-23 ForgeFlow S.L. (https://www.forgeflow.com)
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 {
@@ -11,6 +11,8 @@
     "development_status": "Alpha",
     "category": "KYC",
     "depends": ["kyc", "sale"],
-    "data": [],
+    "data": [
+        "views/sale_order_view.xml",
+    ],
     "installable": True,
 }

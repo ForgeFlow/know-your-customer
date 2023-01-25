@@ -1,11 +1,14 @@
-# Copyright 2021 ForgeFlow S.L. (https://www.forgeflow.com)
+# Copyright 2021-23 ForgeFlow S.L. (https://www.forgeflow.com)
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
-from odoo import api, models
+from odoo import api, fields, models
 
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
+
+    kyc_is_about_expire = fields.Boolean(related="partner_id.kyc_is_about_expire")
+    kyc_is_expired = fields.Boolean(related="partner_id.kyc_is_expired")
 
     @api.onchange("partner_id")
     def onchange_partner_id(self):
