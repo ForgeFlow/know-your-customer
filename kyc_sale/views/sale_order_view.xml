@@ -29,8 +29,8 @@
                     style="margin-bottom:0px;"
                 >
                     <p>
-                        <i class="fa fa-exclamation-triangle" />
-                        KYC Scan is about to expire.
+                        <i class="fa fa-exclamation-triangle" />&amp;nbsp;
+                        <field name="kyc_is_about_to_expire_msg" />
                     </p>
                 </h3>
             </header>
