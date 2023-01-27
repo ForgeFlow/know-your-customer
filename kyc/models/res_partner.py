@@ -219,8 +219,10 @@ class Partner(models.Model):
         domain.extend(
             [
                 "|",
-                ("kyc_last_auto_scan", "=", False),
                 ("kyc_last_auto_scan", "<", cut_date),
+                "&",
+                ("kyc_last_auto_scan", "=", False),
+                ("kyc_last_scan", "<", cut_date),
             ]
         )
         partners = self.env["res.partner"].search(domain)
