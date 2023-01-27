@@ -67,3 +67,25 @@ class TestKyc(TestKycCommon):
         self.test_company.kyc_last_scan -= timedelta(days=31)
         self._simulate_auto_scan_cron()
         self.assertTrue(self.test_company.kyc_last_auto_scan)
+
+    def test_04_reset_expired_cron(self):
+        self._simulate_scan_partner()
+        # About to expire.
+        self.test_contact.kyc_last_scan -= timedelta(days=360)
+        self.assertTrue(self.test_contact.kyc_is_about_expire)
+        self.assertFalse(self.test_contact.kyc_is_expired)
+        self.assertEqual(self.test_contact.kyc_status, "ok")
+        self.partner_model.cron_kyc_reset_expired()
+        self.assertEqual(self.test_contact.kyc_status, "ok")
+        # Expired.
+        self.test_contact.kyc_last_scan -= timedelta(days=50)
+        self.test_contact.invalidate_cache()
+        self.assertFalse(self.test_contact.kyc_is_about_expire)
+        self.assertTrue(self.test_contact.kyc_is_expired)
+        self.assertEqual(self.test_contact.kyc_status, "ok")
+        self.partner_model.cron_kyc_reset_expired()
+        self.assertEqual(self.test_contact.kyc_status, "pending")
+        self.test_contact.invalidate_cache()
+        self.assertTrue(self.test_contact.kyc_is_expired)
+        search_res = self.partner_model.search([("kyc_is_expired", "=", True)])
+        self.assertTrue(self.test_contact in search_res)
