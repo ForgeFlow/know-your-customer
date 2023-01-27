@@ -51,7 +51,7 @@ class Partner(models.Model):
             raise UserError(_("Unsupported search operation"))
         expiring_date = datetime.now() - relativedelta(years=1)
         operator = "<" if value else ">="
-        return [("kyc_status", "=", "ok"), ("kyc_last_scan", operator, expiring_date)]
+        return [("kyc_status", "!=", False), ("kyc_last_scan", operator, expiring_date)]
 
     ultimate_beneficial_owner_ids = fields.One2many(
         "kyc.ubo", "partner_id", "Ultimate beneficial owner"
@@ -230,3 +230,8 @@ class Partner(models.Model):
             partner._action_kyc_scan(is_auto_call=True)
             if auto_commit:
                 self._cr.commit()  # pylint: disable=E8102
+
+    @api.model
+    def cron_kyc_reset_expired(self):
+        partners = self.env["res.partner"].search([("kyc_is_expired", "=", True)])
+        partners.write({"kyc_status": "pending"})
