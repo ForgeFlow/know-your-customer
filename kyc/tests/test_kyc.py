@@ -1,9 +1,8 @@
 # Copyright 2023 ForgeFlow S.L. (https://www.forgeflow.com)
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
-import mock
 from freezegun import freeze_time
 
 from .common import TestKycCommon
@@ -17,11 +16,7 @@ class TestKyc(TestKycCommon):
         self.assertEqual(self.test_contact.kyc_status, "pending")
         self.assertFalse(self.test_contact.kyc_last_scan)
         logs_before = self.scan_log_model.search([])
-        mock_ws_call = mock.patch.object(type(self.webservice_model), "call")
-        with mock_ws_call as mock_func:
-            mock_func.return_value = ("ok", {})
-            self.test_contact._action_kyc_scan()
-
+        self._simulate_scan_partner()
         self.assertEqual(self.test_contact.kyc_status, "ok")
         logs_after = self.scan_log_model.search([])
         new_log = logs_after - logs_before
@@ -32,11 +27,7 @@ class TestKyc(TestKycCommon):
     @freeze_time("2023-01-26 10:00:00")
     def test_02_expiring_warning(self):
         current_datetime = datetime.now()
-        mock_ws_call = mock.patch.object(type(self.webservice_model), "call")
-        with mock_ws_call as mock_func:
-            mock_func.return_value = ("ok", {})
-            self.test_contact._action_kyc_scan()
-
+        self._simulate_scan_partner()
         self.assertEqual(self.test_contact.kyc_status, "ok")
         self.assertEqual(self.test_contact.kyc_last_scan, current_datetime)
         self.assertFalse(self.test_contact.kyc_is_about_expire)
@@ -59,3 +50,20 @@ class TestKyc(TestKycCommon):
         self.assertTrue(self.test_contact not in search_res)
         search_res = self.partner_model.search([("kyc_is_expired", "=", True)])
         self.assertTrue(self.test_contact in search_res)
+
+    def test_03_auto_scan_partners(self):
+        self.assertFalse(self.test_company.kyc_last_scan)
+        self.assertFalse(self.test_company.kyc_last_auto_scan)
+        # Not auto-scan partners that haven't been scanned yet.
+        self._simulate_auto_scan_cron()
+        self.assertFalse(self.test_company.kyc_last_scan)
+        self.assertFalse(self.test_company.kyc_last_auto_scan)
+        # Not auto-scan partners just after the first scan.
+        self._simulate_scan_partner(partner=self.test_company)
+        self.assertTrue(self.test_company.kyc_last_scan)
+        self._simulate_auto_scan_cron()
+        self.assertFalse(self.test_company.kyc_last_auto_scan)
+        # Auto-scan is valid one month after first manual scan:
+        self.test_company.kyc_last_scan -= timedelta(days=31)
+        self._simulate_auto_scan_cron()
+        self.assertTrue(self.test_company.kyc_last_auto_scan)
