@@ -4,6 +4,8 @@
 import threading
 from datetime import datetime, timedelta
 
+from dateutil.relativedelta import relativedelta
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -21,34 +23,33 @@ class Partner(models.Model):
     def _compute_kyc_is_about_expire(self):
         for rec in self:
             if rec.kyc_status and rec.kyc_last_scan:
-                delta = datetime.today() - rec.kyc_last_scan
-                if delta.days >= 335 and delta.days < 365:
-                    rec.kyc_is_about_expire = True
-                else:
-                    rec.kyc_is_about_expire = False
+                start_warning_date = rec.kyc_expiration_date - relativedelta(months=1)
+                rec.kyc_is_about_expire = (
+                    start_warning_date < datetime.today() < rec.kyc_expiration_date
+                )
+                rec.kyc_is_about_to_expire_msg = (
+                    _("KYC Scan will expire on %s.") % rec.kyc_expiration_date.date()
+                )
             else:
                 rec.kyc_is_about_expire = False
+                rec.kyc_is_about_to_expire_msg = False
 
     def _search_kyc_is_about_expire(self, operator, value):
-        from_date = datetime.now() - timedelta(days=365)
-        to_date = datetime.now() - timedelta(days=335)
+        from_date = datetime.now() - relativedelta(years=1)
+        to_date = from_date + relativedelta(months=1)
         return [("kyc_last_scan", ">=", from_date), ("kyc_last_scan", "<=", to_date)]
 
     def _compute_kyc_is_expired(self):
         for rec in self:
             if rec.kyc_status and rec.kyc_last_scan:
-                delta = datetime.today() - rec.kyc_last_scan
-                if delta.days >= 365:
-                    rec.kyc_is_expired = True
-                else:
-                    rec.kyc_is_expired = False
+                rec.kyc_is_expired = datetime.today() > rec.kyc_expiration_date
             else:
                 rec.kyc_is_expired = False
 
     def _search_kyc_is_expired(self, operator, value):
         if operator != "=" or not isinstance(value, bool):
             raise UserError(_("Unsupported search operation"))
-        expiring_date = datetime.now() - timedelta(days=365)
+        expiring_date = datetime.now() - relativedelta(years=1)
         operator = "<" if value else ">="
         return [("kyc_status", "=", "ok"), ("kyc_last_scan", operator, expiring_date)]
 
@@ -68,9 +69,11 @@ class Partner(models.Model):
         "partner_id",
         string="Compliance documents",
     )
+    kyc_expiration_date = fields.Datetime(compute="_compute_kyc_expiration_date")
     kyc_is_about_expire = fields.Boolean(
         compute=_compute_kyc_is_about_expire, search=_search_kyc_is_about_expire
     )
+    kyc_is_about_to_expire_msg = fields.Char(compute="_compute_kyc_is_about_expire")
     kyc_is_expired = fields.Boolean(
         compute="_compute_kyc_is_expired",
         search="_search_kyc_is_expired",
@@ -81,6 +84,14 @@ class Partner(models.Model):
         help="Indicates that a contact need to be considered for KYC scans and"
         "therefore KYC options need to be displayed",
     )
+
+    def _compute_kyc_expiration_date(self):
+        for rec in self:
+            rec.kyc_expiration_date = (
+                rec.kyc_last_scan + relativedelta(years=1)
+                if rec.kyc_last_scan
+                else False
+            )
 
     def _compute_kyc_scan_required(self):
         for rec in self:
