@@ -9,6 +9,9 @@ class SaleOrder(models.Model):
 
     kyc_is_about_expire = fields.Boolean(related="partner_id.kyc_is_about_expire")
     kyc_is_expired = fields.Boolean(related="partner_id.kyc_is_expired")
+    kyc_is_about_to_expire_msg = fields.Char(
+        related="partner_id.kyc_is_about_to_expire_msg"
+    )
 
     @api.onchange("partner_id")
     def onchange_partner_id(self):
