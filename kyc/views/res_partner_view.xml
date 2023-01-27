@@ -72,6 +72,7 @@
                                 readonly="1"
                                 string="Last Auto Scan on"
                             />
+                            <field name="kyc_expiration_date" />
                             <field name="kyc_is_expired" invisible="1" />
                             <field name="kyc_is_about_expire" invisible="1" />
                         </group>
@@ -164,8 +165,8 @@
                     style="margin-bottom:0px;"
                 >
                     <p>
-                        <i class="fa fa-exclamation-triangle" />
-                        KYC Scan is about to expire.
+                        <i class="fa fa-exclamation-triangle" />&amp;nbsp;
+                        <field name="kyc_is_about_to_expire_msg" />
                     </p>
                 </h3>
             </header>
