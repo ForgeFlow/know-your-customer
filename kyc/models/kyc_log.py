@@ -24,6 +24,7 @@ class KYCProcessLog(models.Model):
 
 class KYCStatusOverrideLog(models.Model):
     _name = "kyc.status.override.log"
+    _description = "KYC Status Override Log"
     _order = "id desc"
 
     name = fields.Char(
