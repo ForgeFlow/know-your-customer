@@ -19,6 +19,11 @@ class SaleOrder(models.Model):
             self.partner_id._kyc_accept_transaction(self)
         return super(SaleOrder, self).onchange_partner_id()
 
+    @api.returns("self", lambda value: value.id)
+    def copy(self, default=None):
+        self.partner_id._kyc_accept_transaction(self)
+        return super().copy(default=default)
+
     def action_confirm(self):
         for rec in self:
             rec.partner_id._kyc_accept_transaction(rec)
