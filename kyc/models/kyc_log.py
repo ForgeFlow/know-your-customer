@@ -8,6 +8,8 @@ from .res_partner import KYC_STATUSES
 
 class KYCProcessLog(models.Model):
     _name = "kyc.process.log"
+    _description = "KYC Process Log"
+    _order = "id desc"
 
     name = fields.Char(
         copy=False,
@@ -22,6 +24,8 @@ class KYCProcessLog(models.Model):
 
 class KYCStatusOverrideLog(models.Model):
     _name = "kyc.status.override.log"
+    _description = "KYC Status Override Log"
+    _order = "id desc"
 
     name = fields.Char(
         copy=False,
