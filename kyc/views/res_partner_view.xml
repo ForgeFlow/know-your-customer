@@ -72,6 +72,9 @@
                                 readonly="1"
                                 string="Last Auto Scan on"
                             />
+                            <field name="kyc_expiration_date" />
+                            <field name="kyc_is_expired" invisible="1" />
+                            <field name="kyc_is_about_expire" invisible="1" />
                         </group>
                     </group>
                     <group name="kyc_documents" string="Documents">
@@ -141,9 +144,30 @@
                     class="alert alert-warning"
                     role="alert"
                     attrs="{'invisible':['|', ('kyc_status','!=','pending'), ('kyc_scan_required', '=', False)]}"
-                >KYC
-                    Scan is
-                    pending.
+                    style="margin-bottom:0px;"
+                >KYC Scan is pending.
+                </h3>
+                <h3
+                    class="alert alert-danger"
+                    role="alert"
+                    attrs="{'invisible': [('kyc_is_expired', '!=', True)]}"
+                    style="margin-bottom:0px;"
+                >
+                    <p>
+                        <i class="fa fa-exclamation-triangle" />
+                        KYC Scan is expired.
+                    </p>
+                </h3>
+                <h3
+                    class="alert alert-warning"
+                    role="alert"
+                    attrs="{'invisible': [('kyc_is_about_expire', '!=', True)]}"
+                    style="margin-bottom:0px;"
+                >
+                    <p>
+                        <i class="fa fa-exclamation-triangle" />&amp;nbsp;
+                        <field name="kyc_is_about_to_expire_msg" />
+                    </p>
                 </h3>
             </header>
             <field name="vat" position="after">
@@ -162,14 +186,22 @@
         <field name="arch" type="xml">
             <field name="mobile" position="after">
                 <field name="kyc_is_about_expire" />
+                <field name="kyc_is_expired" />
             </field>
             <xpath expr="//span[hasclass('oe_kanban_partner_links')]" position="after">
                 <span t-if="record.kyc_is_about_expire.raw_value">
                     <i
                         class="fa fa-exclamation-triangle text-warning"
                         role="img"
-                        aria-label="Contact about to expire"
-                        title="Contact about to expire"
+                        aria-label="Contact's KYC Scan about to expire"
+                        title="KYC Scan about to expire"
+                    />
+                </span>
+                <span t-if="record.kyc_is_expired.raw_value">
+                    <i
+                        class="fa fa-exclamation-triangle text-danger"
+                        role="img"
+                        title="KYC Scan has expired"
                     />
                 </span>
             </xpath>
@@ -201,6 +233,11 @@
                     string="KYC Scan about to expire"
                     name="contact_about_expire"
                     domain="[('kyc_is_about_expire', '=', True)]"
+                />
+                <filter
+                    string="KYC Scan is expired"
+                    name="kyc_expired"
+                    domain="[('kyc_is_expired', '=', True)]"
                 />
             </filter>
         </field>
