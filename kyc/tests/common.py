@@ -13,6 +13,20 @@ class TestKycCommon(SavepointCase):
         self.webservice_model = self.env["webservice.backend"]
         self.scan_log_model = self.env["kyc.process.log"]
         self.wiz_model = self.env["kyc.partner.scan"]
+        self.user_model = self.env["res.users"]
+
+        self.test_user_1 = self.user_model.create(
+            {
+                "name": "Test user 1",
+                "login": "user1@test.com",
+            }
+        )
+        self.test_user_2 = self.user_model.create(
+            {
+                "name": "Test user 2",
+                "login": "user2@test.com",
+            }
+        )
 
         self.test_contact = self.partner_model.create(
             {
