@@ -71,9 +71,13 @@ class Partner(models.Model):
     )
     kyc_expiration_date = fields.Datetime(compute="_compute_kyc_expiration_date")
     kyc_is_about_expire = fields.Boolean(
-        compute=_compute_kyc_is_about_expire, search=_search_kyc_is_about_expire
+        compute="_compute_kyc_is_about_expire",
+        search="_search_kyc_is_about_expire",
+        compute_sudo=True,
     )
-    kyc_is_about_to_expire_msg = fields.Char(compute="_compute_kyc_is_about_expire")
+    kyc_is_about_to_expire_msg = fields.Char(
+        compute="_compute_kyc_is_about_expire", compute_sudo=True
+    )
     kyc_is_expired = fields.Boolean(
         compute="_compute_kyc_is_expired",
         search="_search_kyc_is_expired",
