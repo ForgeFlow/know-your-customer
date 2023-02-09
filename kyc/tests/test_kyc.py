@@ -89,3 +89,21 @@ class TestKyc(TestKycCommon):
         self.assertTrue(self.test_contact.kyc_is_expired)
         search_res = self.partner_model.search([("kyc_is_expired", "=", True)])
         self.assertTrue(self.test_contact in search_res)
+
+    def test_05_read_user_related_partners(self):
+        """Test that users can access partners related to other users."""
+        other_user_partner = self.test_user_2.partner_id
+        self._simulate_scan_partner(partner=other_user_partner)
+        self.assertEqual(
+            other_user_partner.with_user(self.test_user_1).kyc_status, "ok"
+        )
+        self.assertFalse(
+            other_user_partner.with_user(self.test_user_1).kyc_is_about_expire
+        )
+        self.assertFalse(other_user_partner.with_user(self.test_user_1).kyc_is_expired)
+        self.assertTrue(
+            other_user_partner.with_user(self.test_user_1).kyc_expiration_date
+        )
+        self.assertTrue(
+            other_user_partner.with_user(self.test_user_1).kyc_is_about_to_expire_msg
+        )
