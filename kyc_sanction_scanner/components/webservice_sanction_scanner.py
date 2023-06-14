@@ -21,7 +21,7 @@ class SanctionScannerApi(Component):
         return res and work.collection.tech_name == "kyc_sanction_scanner"
 
     def _get_connection_and_header(self):
-        conn = http.client.HTTPConnection(self.collection.url)
+        conn = http.client.HTTPSConnection(self.collection.url)
         username = self.collection.username
         password = self.collection.password
         auth_token = base64.b64encode(bytes(username + ":" + password, "utf-8")).decode(
