@@ -11,3 +11,4 @@ class KYCUBO(models.Model):
     name = fields.Char(required=1)
     birthdate = fields.Date(required=1)
     partner_id = fields.Many2one("res.partner", string="Contact")
+    kyc_last_scan_id = fields.Char(string="Last Scan ID")

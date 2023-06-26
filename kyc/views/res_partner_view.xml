@@ -31,6 +31,20 @@
                         type="object"
                         attrs="{'invisible': ['|', ('kyc_status', '!=', 'sanction'), ('kyc_scan_required', '=', False)]}"
                     />
+                    <button
+                        name="action_kyc_disable_ongoing_monitoring"
+                        string="KYC Ongoing Monitoring Disable"
+                        class="btn btn-secondary"
+                        type="object"
+                        attrs="{'invisible': ['|', ('kyc_ongoing_monitoring', '=', False), ('kyc_status', 'in', ['pending', 'error'])]}"
+                    />
+                    <button
+                        name="action_kyc_enable_ongoing_monitoring"
+                        string="KYC Ongoing Monitoring Enable"
+                        class="btn btn-secondary"
+                        type="object"
+                        attrs="{'invisible': ['|', ('kyc_ongoing_monitoring', '=', True), ('kyc_status', 'in', ['pending', 'error'])]}"
+                    />
                 </header>
             </sheet>
             <notebook position="inside">
@@ -42,6 +56,8 @@
                     <group>
                         <group>
                             <field name="kyc_scan_required" invisible="1" />
+                            <field name="kyc_ongoing_monitoring" invisible="1" />
+                            <field name="kyc_auto_scan" />
                             <field
                                 name="ultimate_beneficial_owner_ids"
                                 attrs="{'invisible':['|', ('is_company','=',False), ('is_government','=',True)]}"
@@ -49,6 +65,7 @@
                                 <tree editable="top">
                                     <field name="name" />
                                     <field name="birthdate" />
+                                    <field name="kyc_last_scan_id" optional="hide " />
                                 </tree>
                             </field>
                             <field
@@ -68,11 +85,44 @@
                                 string="Last Scan on"
                             />
                             <field
+                                name="kyc_last_scan_id"
+                                readonly="1"
+                                string="Last Scan ID"
+                            />
+                            <field
                                 name="kyc_last_auto_scan"
                                 readonly="1"
                                 string="Last Auto Scan on"
                             />
                             <field name="kyc_expiration_date" />
+                        </group>
+                        <group>
+                            <field name="kyc_ongoing_monitoring" readonly="1" />
+                            <field name="kyc_ongoing_monitoring_period" readonly="1" />
+                            <field
+                                name="kyc_last_ongoing_monitoring"
+                                readonly="1"
+                                string="Last Ongoing Monitoring Manual Check"
+                            />
+                            <field
+                                name="kyc_last_auto_ongoing_monitoring"
+                                readonly="1"
+                                string="Last Auto Ongoing Monitoring Check"
+                            />
+                            <field
+                                name="kyc_next_ongoing_monitoring"
+                                readonly="1"
+                                string="Next Ongoing Monitoring"
+                            />
+                            <span class="oe_inline">
+                                <button
+                                    name="action_kyc_ongoing_monitoring"
+                                    type="object"
+                                    string="Refresh KYC Ongoing Monitoring"
+                                    class="btn btn-link"
+                                    attrs="{'invisible': ['|', ('kyc_status', 'in', ['pending', 'error']), ('kyc_ongoing_monitoring', '=', False)]}"
+                                />
+                            </span>
                             <field name="kyc_is_expired" invisible="1" />
                             <field name="kyc_is_about_expire" invisible="1" />
                         </group>
