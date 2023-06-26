@@ -22,6 +22,11 @@
                         <field name="partner_id" />
                         <field name="author_id" />
                         <field name="req_data" />
+                        <field
+                            name="scan_id"
+                            attrs="{'invisible': [('scan_id', '=', False)]}"
+                        />
+                        <field name="type" />
                     </group>
                     <notebook>
                         <page name="res" string="Response">
@@ -42,6 +47,7 @@
                 <field name="kyc_result" />
                 <field name="partner_id" />
                 <field name="author_id" />
+                <field name="type" />
                 <field name="create_date" />
             </tree>
         </field>
@@ -56,6 +62,26 @@
                 <field name="kyc_result" />
                 <field name="partner_id" />
                 <field name="author_id" />
+                <filter
+                    string="Scan Logs"
+                    name="scan"
+                    domain="[('type', '=', 'scan')]"
+                />
+                <filter
+                    string="Ongoing Monitoring Logs"
+                    name="ongoing"
+                    domain="[('type', '=', 'ongoing')]"
+                />
+                <filter
+                    string="Enable Ongoing Monitoring Logs"
+                    name="enable_om"
+                    domain="[('type', '=', 'enable_om')]"
+                />
+                <filter
+                    string="Disable Ongoing Monitoring Logs"
+                    name="disable_om"
+                    domain="[('type', '=', 'disable_om')]"
+                />
             </search>
         </field>
     </record>
