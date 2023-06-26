@@ -65,6 +65,7 @@ class TestKyc(TestKycCommon):
         self.assertFalse(self.test_company.kyc_last_auto_scan)
         # Auto-scan is valid one month after first manual scan:
         self.test_company.kyc_last_scan -= timedelta(days=31)
+        self.test_company.kyc_auto_scan = True
         self._simulate_auto_scan_cron()
         self.assertTrue(self.test_company.kyc_last_auto_scan)
 
