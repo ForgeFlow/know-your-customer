@@ -150,3 +150,147 @@ class SanctionScannerApi(Component):
         )
         partner.kyc_document_ids += kyc_doc
         return True
+
+    def _ongoing_monitoring(self, scan_id):
+        # ref: http://developer.sanctionscanner.com/en/search-methods
+        conn, headers = self._get_connection_and_header()
+        payload = ""
+        request_params_str = "/api/Reports/GetMonitoringReportByScanId?scanId=%s" % (
+            scan_id,
+        )
+        conn.request(
+            "GET",
+            request_params_str,
+            payload,
+            headers,
+        )
+        res = conn.getresponse()
+        data = res.read()
+        response = json.loads(data.decode("utf-8"))
+        match_status = response.get("IsSuccess", 0)
+        # 0:Unknown
+        # 1:No Match
+        # 2:Potential Match
+        # 3:False Positive
+        # 4:True Positive
+        # 5:True Positive Approve
+        # 6:True Positive Reject
+        if response.get("HttpStatusCode") != 200 or match_status == 0:
+            return "error", response
+        if match_status == 1:
+            return "ok", response
+        # TODO: more cases.
+        return "sanction", response
+
+    def ongoing_monitoring(self, partner, scan_id):
+        kyc_status, response = self._ongoing_monitoring(scan_id)
+        if partner.is_company:
+            statuses = [kyc_status]
+            responses = [response]
+            for ubo in partner.ultimate_beneficial_owner_ids:
+                sub_status, sub_response = self._ongoing_monitoring(
+                    ubo.kyc_last_scan_id
+                )
+                statuses.append(sub_status)
+                responses.append(sub_response)
+            if any(s == "error" for s in statuses):
+                kyc_status = "error"
+            elif any(s == "sanction" for s in statuses):
+                kyc_status = "sanction"
+            elif any(s == "ok" for s in statuses):
+                kyc_status = "ok"
+            response = responses
+        return kyc_status, response
+
+    def _disable_ongoing_monitoring(self, scan_id):
+        # ref: http://developer.sanctionscanner.com/en/search-methods
+        conn, headers = self._get_connection_and_header()
+        headers["Content-Type"] = "application/json"
+        payload = {
+            "ScanId": scan_id,
+        }
+        json_payload = json.dumps(payload)
+        request_params_str = "/api/Operations/MonitoringDisable"
+        conn.request(
+            "POST",
+            request_params_str,
+            body=json_payload,
+            headers=headers,
+        )
+        res = conn.getresponse()
+        data = res.read()
+        response = json.loads(data.decode("utf-8"))
+        match_status = response.get("IsSuccess", 0)
+        if response.get("HttpStatusCode") != 200 or match_status == 0:
+            return "error", response
+        if match_status == 1:
+            return "ok", response
+        # TODO: more cases.
+        return "sanction", response
+
+    def disable_ongoing_monitoring(self, partner, scan_id):
+        kyc_status, response = self._disable_ongoing_monitoring(scan_id)
+        if partner.is_company:
+            statuses = [kyc_status]
+            responses = [response]
+            for ubo in partner.ultimate_beneficial_owner_ids:
+                sub_status, sub_response = self._disable_ongoing_monitoring(
+                    ubo.kyc_last_scan_id
+                )
+                statuses.append(sub_status)
+                responses.append(sub_response)
+            if any(s == "error" for s in statuses):
+                kyc_status = "error"
+            elif any(s == "sanction" for s in statuses):
+                kyc_status = "sanction"
+            elif any(s == "ok" for s in statuses):
+                kyc_status = "ok"
+            response = responses
+        return kyc_status, response
+
+    def _enable_ongoing_monitoring(self, scan_id, period_id):
+        # ref: http://developer.sanctionscanner.com/en/search-methods
+        conn, headers = self._get_connection_and_header()
+        headers["Content-Type"] = "application/json"
+        payload = {
+            "ScanId": scan_id,
+            "PeriodId": int(period_id),
+        }
+        json_payload = json.dumps(payload)
+        request_params_str = "/api/Operations/MonitoringEnable"
+        conn.request(
+            "POST",
+            request_params_str,
+            body=json_payload,
+            headers=headers,
+        )
+        res = conn.getresponse()
+        data = res.read()
+        response = json.loads(data.decode("utf-8"))
+        match_status = response.get("IsSuccess", 0)
+        if response.get("HttpStatusCode") != 200 or match_status == 0:
+            return "error", response
+        if match_status == 1:
+            return "ok", response
+        # TODO: more cases.
+        return "sanction", response
+
+    def enable_ongoing_monitoring(self, partner, scan_id, period_id):
+        kyc_status, response = self._enable_ongoing_monitoring(scan_id, period_id)
+        if partner.is_company:
+            statuses = [kyc_status]
+            responses = [response]
+            for ubo in partner.ultimate_beneficial_owner_ids:
+                sub_status, sub_response = self._enable_ongoing_monitoring(
+                    ubo.kyc_last_scan_id, period_id
+                )
+                statuses.append(sub_status)
+                responses.append(sub_response)
+            if any(s == "error" for s in statuses):
+                kyc_status = "error"
+            elif any(s == "sanction" for s in statuses):
+                kyc_status = "sanction"
+            elif any(s == "ok" for s in statuses):
+                kyc_status = "ok"
+            response = responses
+        return kyc_status, response
