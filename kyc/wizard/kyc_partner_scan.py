@@ -130,3 +130,4 @@ class KYCPartnerScan(models.TransientModel):
             }
         )
         self.partner_id.write({"kyc_status": self.kyc_status})
+        self.partner_id.update_kyc_ongoing_monitoring()

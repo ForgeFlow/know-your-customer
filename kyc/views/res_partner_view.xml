@@ -31,20 +31,6 @@
                         type="object"
                         attrs="{'invisible': ['|', ('kyc_status', '!=', 'sanction'), ('kyc_scan_required', '=', False)]}"
                     />
-                    <button
-                        name="action_kyc_disable_ongoing_monitoring"
-                        string="KYC Ongoing Monitoring Disable"
-                        class="btn btn-secondary"
-                        type="object"
-                        attrs="{'invisible': ['|', ('kyc_ongoing_monitoring', '=', False), ('kyc_status', 'in', ['pending', 'error'])]}"
-                    />
-                    <button
-                        name="action_kyc_enable_ongoing_monitoring"
-                        string="KYC Ongoing Monitoring Enable"
-                        class="btn btn-secondary"
-                        type="object"
-                        attrs="{'invisible': ['|', ('kyc_ongoing_monitoring', '=', True), ('kyc_status', 'in', ['pending', 'error'])]}"
-                    />
                 </header>
             </sheet>
             <notebook position="inside">
@@ -97,6 +83,22 @@
                             <field name="kyc_expiration_date" />
                         </group>
                         <group>
+                            <span class="oe_inline">
+                                <button
+                                    name="action_kyc_disable_ongoing_monitoring"
+                                    string="KYC Ongoing Monitoring Disable"
+                                    class="btn btn-link"
+                                    type="object"
+                                    attrs="{'invisible': ['|', ('kyc_ongoing_monitoring', '=', False), ('kyc_status', 'in', ['pending', 'error'])]}"
+                                />
+                                <button
+                                    name="action_kyc_enable_ongoing_monitoring"
+                                    string="KYC Ongoing Monitoring Enable"
+                                    class="btn btn-link"
+                                    type="object"
+                                    attrs="{'invisible': ['|', ('kyc_ongoing_monitoring', '=', True), ('kyc_status', 'in', ['pending', 'error'])]}"
+                                />
+                            </span>
                             <field name="kyc_ongoing_monitoring" readonly="1" />
                             <field name="kyc_ongoing_monitoring_period" readonly="1" />
                             <field
@@ -114,7 +116,7 @@
                                 readonly="1"
                                 string="Next Ongoing Monitoring"
                             />
-                            <span class="oe_inline">
+                            <div class="o_row">
                                 <button
                                     name="action_kyc_ongoing_monitoring"
                                     type="object"
@@ -122,7 +124,7 @@
                                     class="btn btn-link"
                                     attrs="{'invisible': ['|', ('kyc_status', 'in', ['pending', 'error']), ('kyc_ongoing_monitoring', '=', False)]}"
                                 />
-                            </span>
+                            </div>
                             <field name="kyc_is_expired" invisible="1" />
                             <field name="kyc_is_about_expire" invisible="1" />
                         </group>
