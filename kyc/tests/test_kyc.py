@@ -20,8 +20,13 @@ class TestKyc(TestKycCommon):
         self.assertEqual(self.test_contact.kyc_status, "ok")
         logs_after = self.scan_log_model.search([])
         new_log = logs_after - logs_before
-        self.assertEqual(len(new_log), 1)
-        self.assertEqual(new_log.kyc_result, "ok")
+        self.assertEqual(
+            len(new_log),
+            2,
+            "You should have 2 logs, the one doing"
+            " the scan and the one enabling the ongoing monitoring",
+        )
+        self.assertEqual(new_log.mapped("kyc_result")[0], "ok")
         self.assertTrue(self.test_contact.kyc_last_scan)
 
     @freeze_time("2023-01-26 10:00:00")

@@ -20,7 +20,7 @@ class KYCEnableOngoingMonitoring(models.TransientModel):
 
     period_id = fields.Selection(
         selection=ONGOING_PERIODS,
-        default="3",
+        default="4",
     )
 
     partner_id = fields.Many2one("res.partner")

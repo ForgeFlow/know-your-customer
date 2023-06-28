@@ -211,7 +211,10 @@ class Partner(models.Model):
         return action
 
     def _get_scan_id_from_response(self, response):
-        return False
+        return []
+
+    def _get_scan_id_from_text(self, text):
+        return []
 
     def _get_request_dict(self, log_type):
         """summary of the request to be recorded in logs"""
@@ -294,6 +297,7 @@ class Partner(models.Model):
         else:
             vals.update({"kyc_last_auto_scan": datetime.now()})
         self.write(vals)
+        self.update_kyc_ongoing_monitoring()
 
     def action_override_kyc_status(self):
         if not self.env.user.has_group("kyc.group_override_kyc_status"):
@@ -415,3 +419,51 @@ class Partner(models.Model):
         else:
             vals["kyc_last_auto_ongoing_monitoring"] = datetime.now()
         self.write(vals)
+        self.update_kyc_ongoing_monitoring()
+
+    def update_kyc_ongoing_monitoring(self):
+        if (
+            self.env.company.kyc_auto_ongoing_monitoring != "no"
+            and self.kyc_status == "ok"
+            and not self.is_government
+            and not self.kyc_ongoing_monitoring
+            and not self.kyc_is_expired
+        ):
+            self.env["kyc.enable.ongoing.monitoring"].create(
+                {
+                    "period_id": self.env.company.kyc_auto_ongoing_monitoring,
+                    "partner_id": self.id,
+                }
+            ).action_kyc_enable_ongoing_monitoring()
+        elif (
+            self.kyc_status != "ok" and self.kyc_ongoing_monitoring
+        ) or self.kyc_is_expired:
+            self.env["kyc.disable.ongoing.monitoring"].create(
+                {"partner_id": self.id}
+            ).action_kyc_disable_ongoing_monitoring()
+
+    @api.model
+    def action_update_last_scan_ids(self):
+        for res in self.search(
+            [
+                ("kyc_status", "!=", "pending"),
+                "|",
+                ("kyc_last_scan", "!=", False),
+                ("kyc_last_auto_scan", "!=", False),
+            ]
+        ):
+            last_log = self.env["kyc.process.log"].search(
+                [("partner_id", "=", res.id), ("type", "in", ["scan", False])],
+                order="create_date DESC",
+                limit=1,
+            )
+            response = self._get_scan_id_from_text(last_log.res_data)
+            if len(response) > 0:
+                if not res.is_company:
+                    res.kyc_last_scan_id = response
+                else:
+                    res.kyc_last_scan_id = response[0]
+                    for i in range(0, len(response[1:])):
+                        res.ultimate_beneficial_owner_ids[
+                            i
+                        ].kyc_last_scan_id = response[i + 1]

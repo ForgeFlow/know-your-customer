@@ -15,3 +15,11 @@ class ResConfigSettings(models.TransientModel):
         string="KYC Webservice",
         help="Choose KYC webservice for scan contacts.",
     )
+
+    kyc_auto_ongoing_monitoring = fields.Selection(
+        related="company_id.kyc_auto_ongoing_monitoring",
+        readonly=False,
+        string="KYC Auto Ongoing Monitoring",
+        help="When a scan is done, it will enable automatically "
+        "ongoing monitoring based on this .",
+    )
