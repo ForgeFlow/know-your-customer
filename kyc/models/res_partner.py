@@ -459,10 +459,8 @@ class Partner(models.Model):
             )
             response = self._get_scan_id_from_text(last_log.res_data)
             if len(response) > 0:
-                if not res.is_company:
-                    res.kyc_last_scan_id = response
-                else:
-                    res.kyc_last_scan_id = response[0]
+                res.kyc_last_scan_id = response[0]
+                if res.is_company:
                     for i in range(0, len(response[1:])):
                         res.ultimate_beneficial_owner_ids[
                             i
