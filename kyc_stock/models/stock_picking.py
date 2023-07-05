@@ -20,14 +20,12 @@ class StockPicking(models.Model):
     @api.onchange("partner_id")
     def onchange_partner_id(self):
         if self.partner_id and self.picking_type_code == "outgoing":
-            self.partner_id._kyc_accept_transaction(self)
             self.partner_id.commercial_partner_id._kyc_accept_transaction(self)
         return super().onchange_partner_id()
 
     @api.returns("self", lambda value: value.id)
     def copy(self, default=None):
         if self.picking_type_code == "outgoing":
-            self.partner_id._kyc_accept_transaction(self)
             self.partner_id.commercial_partner_id._kyc_accept_transaction(self)
         return super().copy(default=default)
 
@@ -35,6 +33,5 @@ class StockPicking(models.Model):
         for rec in self:
             if rec.picking_type_code != "outgoing":
                 continue
-            rec.partner_id._kyc_accept_transaction(rec)
             rec.partner_id.commercial_partner_id._kyc_accept_transaction(rec)
         return super()._action_done()
