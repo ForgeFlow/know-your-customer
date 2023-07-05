@@ -22,6 +22,8 @@
         "views/res_config_settings_views.xml",
         "wizard/kyc_partner_scan_view.xml",
         "views/kyc_ubo_view.xml",
+        "wizard/kyc_enable_ongoing_monitoring_view.xml",
+        "wizard/kyc_disable_ongoing_monitoring_view.xml",
     ],
     "installable": True,
 }
