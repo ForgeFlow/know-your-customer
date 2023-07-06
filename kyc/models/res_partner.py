@@ -140,7 +140,7 @@ class Partner(models.Model):
     def _is_kyc_scan_required(self):
         """Define custom logic to require KYC scan"""
         self.ensure_one()
-        return True
+        return self.commercial_partner_id == self
 
     def _kyc_accept_transaction(self, _record, raise_if_not=True):
         self.ensure_one()
