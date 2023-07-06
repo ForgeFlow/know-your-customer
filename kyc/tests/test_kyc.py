@@ -65,6 +65,7 @@ class TestKyc(TestKycCommon):
         self.assertFalse(self.test_company.kyc_last_auto_scan)
         # Auto-scan is valid one month after first manual scan:
         self.test_company.kyc_last_scan -= timedelta(days=31)
+        self.test_company.kyc_auto_scan = True
         self._simulate_auto_scan_cron()
         self.assertTrue(self.test_company.kyc_last_auto_scan)
 
@@ -72,6 +73,7 @@ class TestKyc(TestKycCommon):
         self._simulate_scan_partner()
         # About to expire.
         self.test_contact.kyc_last_scan -= timedelta(days=360)
+        self.test_contact.invalidate_cache()
         self.assertTrue(self.test_contact.kyc_is_about_expire)
         self.assertFalse(self.test_contact.kyc_is_expired)
         self.assertEqual(self.test_contact.kyc_status, "ok")
@@ -107,3 +109,24 @@ class TestKyc(TestKycCommon):
         self.assertTrue(
             other_user_partner.with_user(self.test_user_1).kyc_is_about_to_expire_msg
         )
+
+    def test_06_scan_ok_and_auto_enable_ongoing_monitoring(self):
+        self.env.company.kyc_auto_ongoing_monitoring = "4"
+        self.assertEqual(self.test_contact.kyc_status, "pending")
+        self.assertFalse(self.test_contact.kyc_last_scan)
+        self.assertFalse(self.test_contact.kyc_ongoing_monitoring)
+        logs_before = self.scan_log_model.search([])
+        self._simulate_scan_partner()
+        self.assertEqual(self.test_contact.kyc_status, "ok")
+        logs_after = self.scan_log_model.search([])
+        new_log = logs_after - logs_before
+        self.assertEqual(
+            len(new_log),
+            2,
+            "You should have 2 logs, the one doing"
+            " the scan and the one enabling the ongoing monitoring",
+        )
+        self.assertEqual(new_log.mapped("kyc_result")[0], "ok")
+        self.assertTrue(self.test_contact.kyc_last_scan)
+        self.assertTrue(self.test_contact.kyc_ongoing_monitoring)
+        self.assertEqual(self.test_contact.kyc_ongoing_monitoring_period, "4")
