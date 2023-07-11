@@ -14,7 +14,7 @@ class Partner(models.Model):
         res = super()._get_scan_id_from_response(response)
         backend = self._get_kyc_webservice_backend()
         if backend.tech_name == "kyc_sanction_scanner":
-            if len(response) != 1 and type(response) is not dict:
+            if len(response) > 0 and isinstance(response, list):
                 response = response[0]
             if response.get("Result", {}).get("ReferenceNumber", False):
                 res = response["Result"]["ReferenceNumber"]
@@ -31,9 +31,13 @@ class Partner(models.Model):
         res = super()._get_next_ongoing_monitoring_from_response(response)
         backend = self._get_kyc_webservice_backend()
         if backend.tech_name == "kyc_sanction_scanner":
-            if len(response) != 1 and type(response) is not dict:
+            if len(response) > 0 and isinstance(response, list):
                 response = response[0]
-            if response.get("Result", {}).get("NextMonitoringDate", False):
+            if response.get("IsSuccess", False) and response.get("Result", {}).get(
+                "NextMonitoringDate", False
+            ):
                 date = (response["Result"]["NextMonitoringDate"]).split(".")[0]
                 res = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
+            else:
+                res = False
         return res
