@@ -144,7 +144,10 @@ class Partner(models.Model):
 
     def _kyc_accept_transaction(self, _record, raise_if_not=True):
         self.ensure_one()
-        accept = not self.kyc_is_expired and self.kyc_status == "ok"
+        # Be able to force the accept status as True by context
+        accept = (
+            not self.kyc_is_expired and self.kyc_status == "ok"
+        ) or self.env.context.get("troy_horse_kyc", False)
         if not accept and raise_if_not:
             raise UserError(
                 _("%s's KYC status ('%s') is not valid or it is expired.")
