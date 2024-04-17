@@ -34,13 +34,17 @@ class KYCPartnerScan(models.TransientModel):
         documents = partner.kyc_document_ids
         validation_message = ""
         validation_messages = {
-            "company": "Passport for each UBO and at least one "
+            "company_with_passport": "Passport for each UBO and at least one "
             "UBO certificate is required to scan",
+            "company_without_passport": "At least one UBO certificate is required to scan",
             "individual": "Passport or ID card is required to scan",
         }
         if not documents:
             if partner.is_company:
-                validation_message = validation_messages["company"]
+                if partner.kyc_company_passport_required:
+                    validation_message = validation_messages["company_with_passport"]
+                else:
+                    validation_message = validation_messages["company_without_passport"]
             else:
                 validation_message = validation_messages["individual"]
         if partner.is_company:
@@ -55,7 +59,7 @@ class KYCPartnerScan(models.TransientModel):
                 certificate_message = "UBO Certificate is required"
             for ubo in self.ultimate_beneficial_owner_ids:
                 is_required_passport = False
-                if not KYCDocumentObj.search(
+                if partner.kyc_company_passport_required and not KYCDocumentObj.search(
                     [
                         ("partner_id", "=", partner.id),
                         ("kyc_ubo_id", "=", ubo.id),
@@ -70,9 +74,19 @@ class KYCPartnerScan(models.TransientModel):
             else:
                 message = certificate_message or passport_message
             if message:
-                validation_message = (
-                    validation_messages["company"] + "\n\nErrors Detected:\n" + message
-                )
+                if partner.kyc_company_passport_required:
+                    validation_message = (
+                        validation_messages["company_with_passport"]
+                        + "\n\nErrors Detected:\n"
+                        + message
+                    )
+                else:
+                    validation_message = (
+                        validation_messages["company_without_passport"]
+                        + "\n\nErrors Detected:\n"
+                        + message
+                    )
+
         else:
             passport = KYCDocumentObj.search(
                 [("partner_id", "=", partner.id), ("document_type", "=", "passport")]

@@ -59,6 +59,22 @@
                                             />
                                         </div>
                                     </div>
+                                    <div class="text-muted">
+                                        KYC Countries with Passport not Required
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16 row">
+                                            <label
+                                                for="kyc_passport_not_required_country_group_id"
+                                                string="KYC Countries with Passport not Required"
+                                                class="col-3 col-lg-3 o_light_label"
+                                            />
+                                            <field
+                                                name="kyc_passport_not_required_country_group_id"
+                                                class="oe_inline"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
