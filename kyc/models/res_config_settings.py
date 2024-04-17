@@ -23,3 +23,11 @@ class ResConfigSettings(models.TransientModel):
         help="When a scan is done, it will enable automatically "
         "ongoing monitoring based on this .",
     )
+
+    kyc_passport_not_required_country_group_id = fields.Many2one(
+        related="company_id.kyc_passport_not_required_country_group_id",
+        string="KYC Countries with Passport not Required",
+        help="If a partner is going to be scanned and it's part of any of the countries present"
+        " in the group, it won't require the passport when scanning the partner.",
+        readonly=False,
+    )

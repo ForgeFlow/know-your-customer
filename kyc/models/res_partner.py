@@ -124,6 +124,9 @@ class Partner(models.Model):
         help="Indicates that a contact need to be considered for KYC scans and"
         "therefore KYC options need to be displayed",
     )
+    kyc_company_passport_required = fields.Boolean(
+        compute="_compute_kyc_company_passport_required",
+    )
 
     def _compute_kyc_expiration_date(self):
         for rec in self:
@@ -131,6 +134,17 @@ class Partner(models.Model):
                 rec.kyc_last_scan + relativedelta(years=1)
                 if rec.kyc_last_scan
                 else False
+            )
+
+    @api.depends("country_id", "is_company")
+    def _compute_kyc_company_passport_required(self):
+        for rec in self:
+            rec.kyc_company_passport_required = (
+                False
+                if rec.is_company
+                and rec.country_id.id
+                in self.env.company.kyc_passport_not_required_country_group_id.country_ids.ids
+                else True
             )
 
     def _compute_kyc_scan_required(self):
@@ -177,6 +191,7 @@ class Partner(models.Model):
             "scan_kyc_status": True,
             "required_company_fields": True if self.is_company else False,
             "required_individual_fields": False if self.is_company else True,
+            "required_passport_company": self.kyc_company_passport_required,
         }
         return action
 

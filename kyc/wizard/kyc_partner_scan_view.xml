@@ -22,7 +22,9 @@
                 >
                     Required Documents:
                     <ul>
-                        <li>Passport for each Ultimate Beneficial Owner.</li>
+                        <li
+                            invisible="not context.get('required_passport_company') "
+                        >Passport for each Ultimate Beneficial Owner.</li>
                         <li>An owner certificate (a single one for all UBOs)</li>
                     </ul>
                 </p>
