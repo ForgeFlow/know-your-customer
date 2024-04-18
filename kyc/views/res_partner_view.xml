@@ -130,6 +130,7 @@
                         </group>
                     </group>
                     <group name="kyc_documents" string="Documents">
+                        <field name="kyc_company_passport_required" invisible="1" />
                         <div>
                             <p
                                 class="oe_grey"
@@ -144,6 +145,7 @@
                                 Required Documents:
                                 <ul>
                                     <li
+                                        attrs="{'invisible':[('kyc_company_passport_required','=',False)]}"
                                     >Passport for each Ultimate Beneficial Owner.</li>
                                     <li
                                     >An owner certificate (a single one for all UBOs)</li>
