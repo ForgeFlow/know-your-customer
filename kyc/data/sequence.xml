@@ -1,5 +1,4 @@
-<odoo>
-    <data noupdate="1">
+<odoo noupdate="1">
         <record id="sequence_kyc_process_log" model="ir.sequence">
             <field name="name">KYC Process Log sequence</field>
             <field name="code">kyc.process.log</field>
@@ -18,6 +17,4 @@
             <field eval="1" name="number_increment" />
             <field eval="False" name="company_id" />
         </record>
-
-    </data>
 </odoo>
