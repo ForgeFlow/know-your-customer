@@ -36,12 +36,6 @@ jobs:
         include:
           - container: ghcr.io/oca/oca-ci/py3.6-odoo14.0:latest
             name: test with Odoo
-<<<<<<< before updating
-=======
-          - container: ghcr.io/oca/oca-ci/py3.6-ocb14.0:latest
-            name: test with OCB
-            makepot: "false"
->>>>>>> after updating
     services:
       postgres:
         image: postgres:9.6
