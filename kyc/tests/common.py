@@ -53,9 +53,21 @@ class TestKycCommon(TransactionCase):
         self.webservice = self.webservice_model.create(
             {
                 "name": "Test backend KYC",
+                "username": "test",
+                "password": "test",
             }
         )
         self.env.company.kyc_webservice_backend_id = self.webservice
+
+        self.country1 = self.env["res.country"].create({"name": "My Country 1"})
+        self.country2 = self.env["res.country"].create({"name": "My Country 2"})
+
+        self.country_group = self.env["res.country.group"].create(
+            {
+                "name": "My Country Group",
+                "country_ids": [(6, 0, [self.country1.id])],
+            }
+        )
 
     def _simulate_scan_partner(self, partner=None, result="ok"):
         if not partner:

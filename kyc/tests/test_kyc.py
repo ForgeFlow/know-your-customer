@@ -130,3 +130,13 @@ class TestKyc(TestKycCommon):
         self.assertTrue(self.test_contact.kyc_last_scan)
         self.assertTrue(self.test_contact.kyc_ongoing_monitoring)
         self.assertEqual(self.test_contact.kyc_ongoing_monitoring_period, "4")
+
+    def test_07_passport_required(self):
+        self.test_company.country_id = False
+        self.env.company.kyc_passport_not_required_country_group_id = False
+        self.assertTrue(self.test_company.kyc_company_passport_required)
+        self.env.company.kyc_passport_not_required_country_group_id = self.country_group
+        self.test_company.country_id = self.country2
+        self.assertTrue(self.test_company.kyc_company_passport_required)
+        self.test_company.country_id = self.country1
+        self.assertFalse(self.test_company.kyc_company_passport_required)
