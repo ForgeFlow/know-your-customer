@@ -36,7 +36,7 @@ class KYCPartnerScan(models.TransientModel):
         validation_messages = {
             "company_with_passport": "Passport for each UBO and at least one "
             "UBO certificate is required to scan",
-            "company_without_passport": "At least one UBO certificate is required to scan",
+            "company_without_passport": "At least one UBO certificate is required to scan",  # noqa: E501
             "individual": "Passport or ID card is required to scan",
         }
         if not documents:
@@ -113,32 +113,27 @@ class KYCPartnerScan(models.TransientModel):
         if vals:
             partner.write(vals)
         self.ultimate_beneficial_owner_ids.filtered(
-            lambda l: l.partner_id.id != partner.id
+            lambda ubo: ubo.partner_id.id != partner.id
         ).write({"partner_id": partner.id})
         partner._action_kyc_scan()
 
     def override_kyc_status(self):
+        from_kyc_status = dict(self._fields["kyc_status"].selection).get(
+            self.partner_id.kyc_status
+        )
+        to_key_status = dict(self._fields["kyc_status"].selection).get(self.kyc_status)
+        status_override_reason = self.status_override_reason
         self.partner_id.message_post(
             body=_(
-                "<b>KYC Status Update from %s to %s</b><br/><b>Reason:</b>%s"
-                % (
-                    dict(self._fields["kyc_status"].selection).get(
-                        self.partner_id.kyc_status
-                    ),
-                    dict(self._fields["kyc_status"].selection).get(self.kyc_status),
-                    self.status_override_reason,
-                )
+                f"<b>KYC Status Update from {from_kyc_status} to {to_key_status}</b>"
+                f"<br/><b>Reason:</b>{status_override_reason}"
             )
         )
         self.env["kyc.status.override.log"].sudo().create(
             {
-                "old_status": dict(self._fields["kyc_status"].selection).get(
-                    self.partner_id.kyc_status
-                ),
-                "new_status": dict(self._fields["kyc_status"].selection).get(
-                    self.kyc_status
-                ),
-                "override_reason": self.status_override_reason,
+                "old_status": from_kyc_status,
+                "new_status": to_key_status,
+                "override_reason": status_override_reason,
                 "author_id": self.env.user.id,
                 "partner_id": self.partner_id.id,
             }

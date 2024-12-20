@@ -43,8 +43,8 @@ class KYCStatusOverrideLog(models.Model):
             "kyc.status.override.log"
         ),
     )
-    old_status = fields.Char("Old Status")
-    new_status = fields.Char("New Status")
+    old_status = fields.Char()
+    new_status = fields.Char()
     override_reason = fields.Char()
     author_id = fields.Many2one("res.users")
     partner_id = fields.Many2one("res.partner", "Contact")

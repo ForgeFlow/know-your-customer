@@ -143,7 +143,7 @@ class Partner(models.Model):
                 False
                 if rec.is_company
                 and rec.country_id.id
-                in self.env.company.kyc_passport_not_required_country_group_id.country_ids.ids
+                in self.env.company.kyc_passport_not_required_country_group_id.country_ids.ids  # noqa: E501
                 else True
             )
 
@@ -161,8 +161,10 @@ class Partner(models.Model):
         accept = not self.kyc_is_expired and self.kyc_status == "ok"
         if not accept and raise_if_not:
             raise UserError(
-                _("%s's KYC status ('%s') is not valid or it is expired.")
-                % (self.name, self.kyc_status)
+                _(
+                    f"{self.name}'s KYC status ('{self.kyc_status}') is not valid "
+                    "or it is expired."
+                )
             )
         return accept
 
@@ -338,7 +340,7 @@ class Partner(models.Model):
 
     @api.model
     def auto_scan_partners(self, domain=False, period=30):
-        auto_commit = not getattr(threading.currentThread(), "testing", False)
+        auto_commit = not getattr(threading.current_thread(), "testing", False)
         cut_date = fields.Datetime.today() - timedelta(days=period)
         if not domain:
             domain = self._get_domain_auto_scan_partners()
@@ -425,7 +427,7 @@ class Partner(models.Model):
         )
         vals = {
             "kyc_status": kyc_status,
-            "kyc_next_ongoing_monitoring": self._get_next_ongoing_monitoring_from_response(
+            "kyc_next_ongoing_monitoring": self._get_next_ongoing_monitoring_from_response(  # noqa: E501
                 response
             ),
         }

@@ -32,8 +32,9 @@ class ResCompany(models.Model):
     kyc_passport_not_required_country_group_id = fields.Many2one(
         comodel_name="res.country.group",
         string="KYC Countries with Passport not Required",
-        help="If a partner is going to be scanned and it's part of any of the countries present"
-        " in the group, it won't require the passport when scanning the partner.",
+        help="If a partner is going to be scanned and it's part "
+        "of any of the countries present in the group, "
+        "it won't require the passport when scanning the partner.",
         readonly=False,
     )
     # TODO: make this configurable in settings wizard.

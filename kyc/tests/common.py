@@ -59,8 +59,18 @@ class TestKycCommon(TransactionCase):
         )
         self.env.company.kyc_webservice_backend_id = self.webservice
 
-        self.country1 = self.env["res.country"].create({"name": "My Country 1"})
-        self.country2 = self.env["res.country"].create({"name": "My Country 2"})
+        self.country1 = self.env["res.country"].create(
+            {
+                "name": "My Country 1",
+                "code": "C1",
+            }
+        )
+        self.country2 = self.env["res.country"].create(
+            {
+                "name": "My Country 2",
+                "code": "C2",
+            }
+        )
 
         self.country_group = self.env["res.country.group"].create(
             {

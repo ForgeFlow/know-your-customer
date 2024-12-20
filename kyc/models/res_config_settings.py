@@ -27,7 +27,8 @@ class ResConfigSettings(models.TransientModel):
     kyc_passport_not_required_country_group_id = fields.Many2one(
         related="company_id.kyc_passport_not_required_country_group_id",
         string="KYC Countries with Passport not Required",
-        help="If a partner is going to be scanned and it's part of any of the countries present"
-        " in the group, it won't require the passport when scanning the partner.",
+        help="If a partner is going to be scanned and it's part "
+        "of any of the countries present in the group, "
+        "it won't require the passport when scanning the partner.",
         readonly=False,
     )

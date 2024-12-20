@@ -34,7 +34,7 @@ class TestKyc(TestKycCommon):
         self.assertFalse(self.test_contact.kyc_is_expired)
         # About to expire:
         self.test_contact.kyc_last_scan = datetime(2022, 1, 27, 9, 0)
-        self.test_contact.invalidate_cache()
+        self.test_contact.invalidate_recordset()
         self.assertTrue(self.test_contact.kyc_is_about_expire)
         self.assertFalse(self.test_contact.kyc_is_expired)
         search_res = self.partner_model.search([("kyc_is_about_expire", "=", True)])
@@ -43,7 +43,7 @@ class TestKyc(TestKycCommon):
         self.assertTrue(self.test_contact not in search_res)
         # Just expired:
         self.test_contact.kyc_last_scan = datetime(2022, 1, 26, 9, 0)
-        self.test_contact.invalidate_cache()
+        self.test_contact.invalidate_recordset()
         self.assertFalse(self.test_contact.kyc_is_about_expire)
         self.assertTrue(self.test_contact.kyc_is_expired)
         search_res = self.partner_model.search([("kyc_is_about_expire", "=", True)])
@@ -73,7 +73,7 @@ class TestKyc(TestKycCommon):
         self._simulate_scan_partner()
         # About to expire.
         self.test_contact.kyc_last_scan -= timedelta(days=360)
-        self.test_contact.invalidate_cache()
+        self.test_contact.invalidate_recordset()
         self.assertTrue(self.test_contact.kyc_is_about_expire)
         self.assertFalse(self.test_contact.kyc_is_expired)
         self.assertEqual(self.test_contact.kyc_status, "ok")
@@ -81,13 +81,13 @@ class TestKyc(TestKycCommon):
         self.assertEqual(self.test_contact.kyc_status, "ok")
         # Expired.
         self.test_contact.kyc_last_scan -= timedelta(days=50)
-        self.test_contact.invalidate_cache()
+        self.test_contact.invalidate_recordset()
         self.assertFalse(self.test_contact.kyc_is_about_expire)
         self.assertTrue(self.test_contact.kyc_is_expired)
         self.assertEqual(self.test_contact.kyc_status, "ok")
         self.partner_model.cron_kyc_reset_expired()
         self.assertEqual(self.test_contact.kyc_status, "pending")
-        self.test_contact.invalidate_cache()
+        self.test_contact.invalidate_recordset()
         self.assertTrue(self.test_contact.kyc_is_expired)
         search_res = self.partner_model.search([("kyc_is_expired", "=", True)])
         self.assertTrue(self.test_contact in search_res)

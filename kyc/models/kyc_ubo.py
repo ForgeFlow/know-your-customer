@@ -8,7 +8,7 @@ class KYCUBO(models.Model):
     _name = "kyc.ubo"
     _description = "KYC Ultimate Beneficial Owner"
 
-    name = fields.Char(required=1)
-    birthdate = fields.Date(required=1)
+    name = fields.Char(required=True)
+    birthdate = fields.Date(required=True)
     partner_id = fields.Many2one("res.partner", string="Contact")
     kyc_last_scan_id = fields.Char(string="Last Scan ID")

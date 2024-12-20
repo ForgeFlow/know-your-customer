@@ -17,8 +17,7 @@
                 </p>
                 <p
                     class="oe_grey"
-                    invisible="not context.get('scan_kyc_status') or not context.get('required_company_fields')"
-                    attrs="{'invisible':[('is_government','=',True)]}"
+                    invisible="not context.get('scan_kyc_status') or not context.get('required_company_fields') or is_government"
                 >
                     Required Documents:
                     <ul>
@@ -28,10 +27,7 @@
                         <li>An owner certificate (a single one for all UBOs)</li>
                     </ul>
                 </p>
-                <group
-                    invisible="not context.get('scan_kyc_status')"
-                    attrs="{'invisible':[('is_government','=',True)]}"
-                >
+                <group invisible="not context.get('scan_kyc_status') or is_government">
                     <field
                         name="ultimate_beneficial_owner_ids"
                         domain="[('partner_id', '=', partner_id)]"
