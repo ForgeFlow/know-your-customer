@@ -37,13 +37,10 @@ class SanctionScannerApi(Component):
         conn, headers = self._get_connection_and_header()
         payload = ""
         search_type = 2 if partner.is_company else 1
-        request_params_str = "/api/Search/SearchByName?name=%s&searchType=%s" % (
-            quote(partner.name),
-            search_type,
-        )
+        request_params_str = f"/api/Search/SearchByName?name={quote(partner.name)}&searchType={search_type}"  # noqa: E501
         if not partner.is_company:
-            request_params_str += "&birthYear=%s" % partner.birthdate_date.year
-            request_params_str += "&countryCodes=%s" % partner.nationality_id.code
+            request_params_str += f"&birthYear={partner.birthdate_date.year}"
+            request_params_str += f"&countryCodes={partner.nationality_id.code}"
         conn.request(
             "GET",
             request_params_str,
@@ -76,16 +73,14 @@ class SanctionScannerApi(Component):
         if name and birthdate:
             conn.request(
                 "GET",
-                "/api/Search/SearchByName?name=%s&birthYear=%s&searchType=%s"
-                % (quote(name), birthdate, search_type),
+                f"/api/Search/SearchByName?name={quote(name)}&birthYear={birthdate}&searchType={search_type}",  # noqa: E501
                 payload,
                 headers,
             )
         else:
             conn.request(
                 "GET",
-                "/api/Search/SearchByName?name=%s&searchType=%s"
-                % (quote(name), search_type),
+                f"/api/Search/SearchByName?name={quote(name)}&searchType={search_type}",  # noqa: E501
                 payload,
                 headers,
             )
@@ -155,8 +150,8 @@ class SanctionScannerApi(Component):
         # ref: http://developer.sanctionscanner.com/en/search-methods
         conn, headers = self._get_connection_and_header()
         payload = ""
-        request_params_str = "/api/Reports/GetMonitoringReportByScanId?scanId=%s" % (
-            scan_id,
+        request_params_str = (
+            f"/api/Reports/GetMonitoringReportByScanId?scanId={scan_id}"
         )
         conn.request(
             "GET",

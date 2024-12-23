@@ -7,7 +7,7 @@ class KYCProcessLog(models.Model):
     def create(self, vals):
         res = vals.get("res_data", {})
         call_type = vals.get("type")
-        if len(res) != 1 and type(res) is not dict:
+        if len(res) != 1 and not isinstance(res, dict):
             res = res[0]
         if call_type == "ongoing":
             if res.get("Result", {}).get("ReferenceNumber", False):
