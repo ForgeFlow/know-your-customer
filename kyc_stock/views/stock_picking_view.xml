@@ -14,23 +14,24 @@
                 <h3
                     class="alert alert-danger"
                     role="alert"
-                    attrs="{'invisible': [('kyc_is_expired', '!=', True)]}"
+                    invisible="not kyc_is_expired"
                     style="margin-bottom:0px;"
                 >
                     <p>
-                        <i class="fa fa-exclamation-triangle" />
-                        KYC Scan is expired.
-                    </p>
+                        <i
+                            class="fa fa-exclamation-triangle"
+                        /> KYC Scan is expired. </p>
                 </h3>
                 <h3
                     class="alert alert-warning"
                     role="alert"
-                    attrs="{'invisible': [('kyc_is_about_expire', '!=', True)]}"
+                    invisible="not kyc_is_about_expire"
                     style="margin-bottom:0px;"
                 >
                     <p>
-                        <i class="fa fa-exclamation-triangle" />&amp;nbsp;
-                        <field name="kyc_is_about_to_expire_msg" />
+                        <i class="fa fa-exclamation-triangle" />&amp;nbsp; <field
+                            name="kyc_is_about_to_expire_msg"
+                        />
                     </p>
                 </h3>
             </header>

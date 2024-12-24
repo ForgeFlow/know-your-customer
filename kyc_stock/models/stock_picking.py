@@ -17,11 +17,11 @@ class StockPicking(models.Model):
         related="partner_id.commercial_partner_id.kyc_is_about_to_expire_msg"
     )
 
-    @api.onchange("partner_id")
-    def onchange_partner_id(self):
+    @api.onchange("picking_type_id", "partner_id")
+    def _onchange_picking_type(self):
         if self.partner_id and self.picking_type_code == "outgoing":
             self.partner_id.commercial_partner_id._kyc_accept_transaction(self)
-        return super().onchange_partner_id()
+        return super()._onchange_picking_type()
 
     @api.returns("self", lambda value: value.id)
     def copy(self, default=None):
