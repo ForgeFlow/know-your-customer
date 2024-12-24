@@ -14,10 +14,10 @@ class SaleOrder(models.Model):
     )
 
     @api.onchange("partner_id")
-    def onchange_partner_id(self):
+    def _onchange_partner_id_warning(self):
         if self.partner_id:
             self.partner_id._kyc_accept_transaction(self)
-        return super(SaleOrder, self).onchange_partner_id()
+        return super()._onchange_partner_id_warning()
 
     @api.returns("self", lambda value: value.id)
     def copy(self, default=None):
