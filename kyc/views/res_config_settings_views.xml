@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+        <record id="res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.kyc</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="base_setup.res_config_settings_view_form" />
+            <field name="arch" type="xml">
+                <div id="companies" position="after">
+                    <div id="kyc_webservice">
+                        <h2>KYC Webservice</h2>
+                        <div
+                        class="row mt16 o_settings_container"
+                        name="kyc_webservice_setting_container"
+                    >
+                            <div
+                            class="col-12 col-lg-6 o_setting_box"
+                            id="kyc_web_service_setting"
+                        >
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">KYC Webservice</span>
+                                    <span
+                                    class="fa fa-lg fa-building-o"
+                                    title="Values set here are company-specific."
+                                    aria-label="Values set here are company-specific."
+                                    groups="base.group_multi_company"
+                                    role="img"
+                                />
+                                    <div class="text-muted">
+                                        Set KYC Webservice
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16 row">
+                                            <label
+                                            for="kyc_webservice_backend_id"
+                                            string="KYC Webservice"
+                                            class="col-3 col-lg-3 o_light_label"
+                                        />
+                                            <field
+                                            name="kyc_webservice_backend_id"
+                                            class="oe_inline"
+                                            options="{'no_create': True, 'no_create_edit': True}"
+                                        />
+                                        </div>
+                                    </div>
+                                    <div class="text-muted">
+                                        Set KYC Auto Ongoing Monitoring
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16 row">
+                                            <label
+                                            for="kyc_auto_ongoing_monitoring"
+                                            string="KYC Auto Ongoing Monitoring"
+                                            class="col-3 col-lg-3 o_light_label"
+                                        />
+                                            <field
+                                            name="kyc_auto_ongoing_monitoring"
+                                            class="oe_inline"
+                                        />
+                                        </div>
+                                    </div>
+                                    <div class="text-muted">
+                                        KYC Countries with Passport not Required
+                                    </div>
+                                    <div class="content-group">
+                                        <div class="mt16 row">
+                                            <label
+                                            for="kyc_passport_not_required_country_group_id"
+                                            string="KYC Countries with Passport not Required"
+                                            class="col-3 col-lg-3 o_light_label"
+                                        />
+                                            <field
+                                            name="kyc_passport_not_required_country_group_id"
+                                            class="oe_inline"
+                                        />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </field>
+        </record>
+</odoo>

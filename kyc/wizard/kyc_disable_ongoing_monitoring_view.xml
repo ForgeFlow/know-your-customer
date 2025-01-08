@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_kyc_disable_ongoing_monitoring_form" model="ir.ui.view">
+        <field name="name">kyc.disable.ongoing.monitoring.form</field>
+        <field name="model">kyc.disable.ongoing.monitoring</field>
+        <field name="arch" type="xml">
+            <form string="KYC Disable Ongoing Monitoring">
+                <span>
+                    You are going to disable the Ongoing Monitoring service of the following partner:
+                </span>
+                <field name="partner_id" readonly="1" />
+                <span>
+                   . Are you sure?
+                </span>
+                <footer>
+                    <button
+                        name="action_kyc_disable_ongoing_monitoring"
+                        type="object"
+                        string="Disable"
+                        class="btn-primary"
+                    />
+                    <button special="cancel" string="Cancel" class="oe_link" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record
+        id="action_kyc_disable_ongoing_monitoring_wizard"
+        model="ir.actions.act_window"
+    >
+        <field name="name">KYC Disable Ongoing Monitoring</field>
+        <field name="res_model">kyc.disable.ongoing.monitoring</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

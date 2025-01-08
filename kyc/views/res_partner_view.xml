@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2021 ForgeFlow S.L. (https://www.forgeflow.com)
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
+ -->
+<odoo>
+    <record id="view_partner_form" model="ir.ui.view">
+        <field name="name">res.partner.form - kyc</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form" />
+        <field name="arch" type="xml">
+            <sheet position="before">
+                <header>
+                    <button
+                        name="action_kyc_scan"
+                        class="btn btn-primary"
+                        string="KYC Scan"
+                        type="object"
+                        invisible="not kyc_scan_required"
+                    />
+                    <button
+                        name="action_override_kyc_status"
+                        string="KYC Checked"
+                        class="btn btn-success"
+                        type="object"
+                        invisible="kyc_status != 'ok' or not kyc_scan_required"
+                    />
+                    <button
+                        name="action_override_kyc_status"
+                        string="KYC Checked"
+                        class="btn btn-danger"
+                        type="object"
+                        invisible="kyc_status != 'sanction' or not kyc_scan_required"
+                    />
+                </header>
+            </sheet>
+            <notebook position="inside">
+                <page
+                    name="kyc"
+                    string="KYC Compliance"
+                    invisible="not kyc_scan_required"
+                >
+                    <group>
+                        <group>
+                            <field name="kyc_scan_required" invisible="1" />
+                            <field name="kyc_ongoing_monitoring" invisible="1" />
+                            <field name="kyc_auto_scan" />
+                            <field
+                                name="ultimate_beneficial_owner_ids"
+                                invisible="not is_company or is_government"
+                            >
+                                <tree editable="top">
+                                    <field name="name" />
+                                    <field name="birthdate" />
+                                    <field name="kyc_last_scan_id" optional="hide " />
+                                </tree>
+                            </field>
+                            <field name="birthdate_date" invisible="is_company" />
+                            <field name="nationality_id" invisible="is_company" />
+                        </group>
+                        <group>
+                            <field name="kyc_status" readonly="1" />
+                            <field
+                                name="kyc_last_scan"
+                                readonly="1"
+                                string="Last Scan on"
+                            />
+                            <field
+                                name="kyc_last_scan_id"
+                                readonly="1"
+                                string="Last Scan ID"
+                            />
+                            <field
+                                name="kyc_last_auto_scan"
+                                readonly="1"
+                                string="Last Auto Scan on"
+                            />
+                            <field name="kyc_expiration_date" />
+                        </group>
+                        <group>
+                            <span colspan="2">
+                                <button
+                                    name="action_kyc_disable_ongoing_monitoring"
+                                    string="KYC Ongoing Monitoring Disable"
+                                    class="btn btn-link"
+                                    type="object"
+                                    invisible="not kyc_ongoing_monitoring or kyc_status in ['pending', 'error']"
+                                />
+                                <button
+                                    name="action_kyc_enable_ongoing_monitoring"
+                                    string="KYC Ongoing Monitoring Enable"
+                                    class="btn btn-link"
+                                    type="object"
+                                    invisible="kyc_ongoing_monitoring or kyc_status in ['pending', 'error']"
+                                />
+                            </span>
+                            <field name="kyc_ongoing_monitoring" readonly="1" />
+                            <field name="kyc_ongoing_monitoring_period" readonly="1" />
+                            <field
+                                name="kyc_last_ongoing_monitoring"
+                                readonly="1"
+                                string="Last Ongoing Monitoring Manual Check"
+                            />
+                            <field
+                                name="kyc_last_auto_ongoing_monitoring"
+                                readonly="1"
+                                string="Last Auto Ongoing Monitoring Check"
+                            />
+                            <field
+                                name="kyc_next_ongoing_monitoring"
+                                readonly="1"
+                                string="Next Ongoing Monitoring"
+                            />
+                            <div colspan="2">
+                                <button
+                                    name="action_kyc_ongoing_monitoring"
+                                    type="object"
+                                    string="Refresh KYC Ongoing Monitoring"
+                                    class="btn btn-link"
+                                    invisible="kyc_status in ['pending', 'error'] or not kyc_ongoing_monitoring"
+                                />
+                            </div>
+                            <field name="kyc_is_expired" invisible="1" />
+                            <field name="kyc_is_about_expire" invisible="1" />
+                        </group>
+                    </group>
+
+                    <separator string="Documents" />
+                    <div name="kyc_documents">
+                        <field name="kyc_company_passport_required" invisible="1" />
+                        <p class="oe_grey" invisible="is_company or is_government">
+                            Required Document: Passport or ID card
+                        </p>
+                        <p
+                            class="oe_grey"
+                            invisible="not is_company or is_government"
+                        > Required Documents: <ul>
+                                <li
+                                    invisible="not kyc_company_passport_required"
+                                >Passport for
+                                    each Ultimate Beneficial Owner.</li>
+                                <li
+                                >An owner certificate (a single one for all UBOs)</li>
+                            </ul>
+                        </p>
+                        <span class="oe_inline">
+                            <button
+                                name="%(kyc_file_upload_action)d"
+                                type="action"
+                                context="{'default_partner_id':id}"
+                                string="Upload Document"
+                                class="btn btn-link mb-2 fa fa-upload"
+                                title="Upload Document"
+                            />
+                        </span>
+                        <field
+                            name="kyc_document_ids"
+                            mode="tree"
+                            readonly="1"
+                            nolabel="1"
+                        >
+                            <tree>
+                                <field name="name" />
+                                <field name="document_type" />
+                                <field name="kyc_ubo_id" />
+                                <field name="create_date" />
+                                <button
+                                    name="download_file"
+                                    type="object"
+                                    class="btn fa fa-download"
+                                    title="Download Document"
+                                />
+                                <button
+                                    name="delete_file"
+                                    type="object"
+                                    class="btn fa fa-trash"
+                                    title="Delete Document"
+                                    groups="kyc.group_delete_kyc_document"
+                                    confirm="Do you want to delete this document?"
+                                />
+                            </tree>
+                        </field>
+                    </div>
+                </page>
+            </notebook>
+            <header position="after">
+                <h3
+                    class="alert alert-warning"
+                    role="alert"
+                    invisible="kyc_status != 'pending' or not kyc_scan_required"
+                    style="margin-bottom:0px;"
+                >KYC Scan is pending.
+                </h3>
+                <h3
+                    class="alert alert-danger"
+                    role="alert"
+                    invisible="not kyc_is_expired"
+                    style="margin-bottom:0px;"
+                >
+                    <p>
+                        <i
+                            class="fa fa-exclamation-triangle"
+                        /> KYC Scan is expired. </p>
+                </h3>
+                <h3
+                    class="alert alert-warning"
+                    role="alert"
+                    invisible="not kyc_is_about_expire"
+                    style="margin-bottom:0px;"
+                >
+                    <p>
+                        <i class="fa fa-exclamation-triangle" />&amp;nbsp; <field
+                            name="kyc_is_about_to_expire_msg"
+                        />
+                    </p>
+                </h3>
+            </header>
+            <field name="vat" position="after">
+                <field name="is_government" invisible="not is_company" />
+            </field>
+        </field>
+    </record>
+
+    <record id="res_partner_kanban_view" model="ir.ui.view">
+        <field name="name">res.partner.kanban.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.res_partner_kanban_view" />
+        <field name="arch" type="xml">
+            <field name="mobile" position="after">
+                <field name="kyc_is_about_expire" />
+                <field name="kyc_is_expired" />
+            </field>
+            <xpath expr="//div[hasclass('oe_kanban_bottom_right')]" position="inside">
+                <span t-if="record.kyc_is_about_expire.raw_value">
+                    <i
+                        class="fa fa-exclamation-triangle text-warning"
+                        role="img"
+                        aria-label="Contact's KYC Scan about to expire"
+                        title="KYC Scan about to expire"
+                    />
+                </span>
+                <span t-if="record.kyc_is_expired.raw_value">
+                    <i
+                        class="fa fa-exclamation-triangle text-danger"
+                        role="img"
+                        title="KYC Scan has expired"
+                    />
+                </span>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_tree" model="ir.ui.view">
+        <field name="name">res.partner.tree.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree" />
+        <field name="arch" type="xml">
+            <field name="display_name" position="after">
+                <field name="kyc_is_about_expire" column_invisible="True" />
+            </field>
+            <xpath expr="//tree" position="attributes">
+                <attribute name="decoration-warning">kyc_is_about_expire</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_res_partner_filter" model="ir.ui.view">
+        <field name="name">res.partner.view.search.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter" />
+        <field name="arch" type="xml">
+            <filter name="inactive" position="after">
+                <separator />
+                <filter
+                    string="KYC Scan about to expire"
+                    name="contact_about_expire"
+                    domain="[('kyc_is_about_expire', '=', True)]"
+                />
+                <filter
+                    string="KYC Scan is expired"
+                    name="kyc_expired"
+                    domain="[('kyc_is_expired', '=', True)]"
+                />
+            </filter>
+        </field>
+    </record>
+</odoo>

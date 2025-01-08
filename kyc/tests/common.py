@@ -1,0 +1,94 @@
+# Copyright 2023 ForgeFlow S.L. (https://www.forgeflow.com)
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
+
+from unittest import mock
+
+from odoo.tests.common import TransactionCase
+
+
+class TestKycCommon(TransactionCase):
+    def setUp(self):
+        super().setUp()
+        self.partner_model = self.env["res.partner"]
+        self.webservice_model = self.env["webservice.backend"]
+        self.scan_log_model = self.env["kyc.process.log"]
+        self.wiz_model = self.env["kyc.partner.scan"]
+        self.user_model = self.env["res.users"]
+
+        self.test_user_1 = self.user_model.create(
+            {
+                "name": "Test user 1",
+                "login": "user1@test.com",
+            }
+        )
+        self.test_user_2 = self.user_model.create(
+            {
+                "name": "Test user 2",
+                "login": "user2@test.com",
+            }
+        )
+
+        self.test_contact = self.partner_model.create(
+            {
+                "name": "Test Partner",
+            }
+        )
+        self.test_company = self.partner_model.create(
+            {
+                "name": "Test company",
+                "is_company": True,
+                "ultimate_beneficial_owner_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "name": "Owner 1",
+                            "birthdate": "1990-06-15",
+                        },
+                    )
+                ],
+            }
+        )
+
+        self.webservice = self.webservice_model.create(
+            {
+                "name": "Test backend KYC",
+                "username": "test",
+                "password": "test",
+            }
+        )
+        self.env.company.kyc_webservice_backend_id = self.webservice
+
+        self.country1 = self.env["res.country"].create(
+            {
+                "name": "My Country 1",
+                "code": "C1",
+            }
+        )
+        self.country2 = self.env["res.country"].create(
+            {
+                "name": "My Country 2",
+                "code": "C2",
+            }
+        )
+
+        self.country_group = self.env["res.country.group"].create(
+            {
+                "name": "My Country Group",
+                "country_ids": [(6, 0, [self.country1.id])],
+            }
+        )
+
+    def _simulate_scan_partner(self, partner=None, result="ok"):
+        if not partner:
+            partner = self.test_contact
+        mock_ws_call = mock.patch.object(type(self.webservice_model), "call")
+        with mock_ws_call as mock_func:
+            mock_func.return_value = (result, {})
+            partner._action_kyc_scan()
+
+    def _simulate_auto_scan_cron(self, result="ok"):
+        mock_ws_call = mock.patch.object(type(self.webservice_model), "call")
+        with mock_ws_call as mock_func:
+            mock_func.return_value = (result, {})
+            self.partner_model.auto_scan_partners()

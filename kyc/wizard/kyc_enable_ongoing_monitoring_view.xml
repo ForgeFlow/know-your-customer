@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_kyc_enable_ongoing_monitoring_form" model="ir.ui.view">
+        <field name="name">kyc.enable.ongoing.monitoring.form</field>
+        <field name="model">kyc.enable.ongoing.monitoring</field>
+        <field name="arch" type="xml">
+            <form string="KYC Enable Ongoing Monitoring">
+                <h2>WARNING</h2>
+                <span>
+                    You are going to enable the Ongoing Monitoring for the following partner:
+                </span>
+                <field name="partner_id" readonly="1" />
+                <br />
+                <span>
+                    This can involve extra cost with the KYC service provider.
+                </span>
+                <br />
+                <span>
+                    Please, if you want to proceed, select how often do you want to do the ongoing monitoring:
+                </span>
+                <group>
+                    <field name="period_id" />
+                </group>
+                <footer>
+                    <button
+                        name="action_kyc_enable_ongoing_monitoring"
+                        type="object"
+                        string="Enable"
+                        class="btn-primary"
+                    />
+                    <button special="cancel" string="Cancel" class="oe_link" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record
+        id="action_kyc_enable_ongoing_monitoring_wizard"
+        model="ir.actions.act_window"
+    >
+        <field name="name">KYC Enable Ongoing Monitoring</field>
+        <field name="res_model">kyc.enable.ongoing.monitoring</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>
