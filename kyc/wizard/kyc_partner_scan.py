@@ -1,5 +1,7 @@
-# Copyright 2021 ForgeFlow S.L. (https://www.forgeflow.com)
+# Copyright 2021-25 ForgeFlow S.L. (https://www.forgeflow.com)
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
+
+from markupsafe import Markup
 
 from odoo import _, fields, models
 from odoo.exceptions import ValidationError
@@ -124,9 +126,12 @@ class KYCPartnerScan(models.TransientModel):
         to_key_status = dict(self._fields["kyc_status"].selection).get(self.kyc_status)
         status_override_reason = self.status_override_reason
         self.partner_id.message_post(
-            body=_(
-                f"<b>KYC Status Update from {from_kyc_status} to {to_key_status}</b>"
-                f"<br/><b>Reason:</b>{status_override_reason}"
+            body=Markup(
+                _(
+                    f"<b>KYC Status Update from {from_kyc_status} "
+                    f"to {to_key_status}</b>"
+                    f"<br/><b>Reason:</b>{status_override_reason}"
+                )
             )
         )
         self.env["kyc.status.override.log"].sudo().create(
