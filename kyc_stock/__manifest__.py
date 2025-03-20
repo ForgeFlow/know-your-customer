@@ -8,7 +8,7 @@
     "author": "ForgeFlow",
     "website": "https://github.com/ForgeFlow/know-your-customer",
     "license": "AGPL-3",
-    "development_status": "Beta",
+    "development_status": "Production/Stable",
     "category": "KYC",
     "depends": ["kyc", "stock"],
     "data": [
