@@ -3,7 +3,7 @@
 
 {
     "name": "KYC Skip Check",
-    "version": "14.0.1.0.0",
+    "version": "17.0.1.0.0",
     "summary": "Allows to override check by context. Only install when needed!",
     "author": "ForgeFlow",
     "website": "https://github.com/ForgeFlow/know-your-customer",

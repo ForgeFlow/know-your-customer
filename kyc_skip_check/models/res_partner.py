@@ -11,4 +11,4 @@ class ResPartner(models.Model):
         self.ensure_one()
         if self.env.context.get("_skip_kyc_check", False):
             return True
-        return super(ResPartner, self)._kyc_accept_transaction(_record, raise_if_not)
+        return super()._kyc_accept_transaction(_record, raise_if_not)
