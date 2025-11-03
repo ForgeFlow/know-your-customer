@@ -143,6 +143,7 @@ class SanctionScannerApi(Component):
                 "document_type": "scan_certificate",
             }
         )
+        attachment.write({"res_id": kyc_doc.id, "res_model": "kyc.document"})
         partner.kyc_document_ids += kyc_doc
         return True
 

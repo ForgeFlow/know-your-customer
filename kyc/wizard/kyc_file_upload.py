@@ -35,4 +35,5 @@ class KYCFileUpload(models.TransientModel):
                 "kyc_ubo_id": self.kyc_ubo_id and self.kyc_ubo_id.id or False,
             }
         )
+        attachment.write({"res_id": kyc_doc.id, "res_model": "kyc.document"})
         self.partner_id.kyc_document_ids += kyc_doc
